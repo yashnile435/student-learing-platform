@@ -1,0 +1,26 @@
+
+.progress-container {
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.progress-track {
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+}
+
+.progress-fill {
+    transition: width 0.4s ease-in-out;
+    border-radius: 4px;
+}
+
+.progress-label {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 4px;
+    text-align: right;
+    font-weight: 500;
+}

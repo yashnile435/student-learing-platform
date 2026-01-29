@@ -1,0 +1,61 @@
+
+.admin-navbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 2rem;
+    flex-wrap: wrap; /* Wraps by default on desktop if needed */
+    background: #fff;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+@media (max-width: 640px) {
+    .admin-navbar {
+      flex-wrap: nowrap;
+      overflow-x: auto; /* Horizontal scroll on mobile */
+      padding-bottom: 20px; /* Space for scrollbar */
+      margin-bottom: 1.5rem;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; /* Hide scrollbar for cleaner look if desired, or keep it */
+    }
+    
+    .admin-navbar::-webkit-scrollbar {
+        height: 4px;
+    }
+    .admin-navbar::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 4px;
+    }
+
+    .admin-nav-item {
+      white-space: nowrap;
+      font-size: 0.9rem;
+      padding: 0.5rem 0.8rem;
+    }
+}
+
+.admin-nav-item {
+    text-decoration: none;
+    color: #4b5563;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all 0.2s;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    z-index: 10;
+    position: relative;
+    border: 1px solid transparent;
+}
+
+.admin-nav-item:hover {
+    background-color: #f3f4f6;
+    color: #111;
+}
+
+.admin-nav-item.active {
+    background-color: #2563eb;
+    color: white;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}

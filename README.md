@@ -2,6 +2,29 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## 🔥 Firebase Setup Required
+
+**Before running the application, you must configure Firebase:**
+
+1. See [FIREBASE_SETUP.md](./FIREBASE_SETUP.md) for detailed setup instructions
+2. Enable Authentication methods (Email/Password, Google, Anonymous)
+3. Configure Firestore Database and Security Rules
+4. Test the connection at `/test` route
+
+**Quick Setup:**
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Configure Firebase (see FIREBASE_SETUP.md)
+# 3. Run the app
+npm start
+
+# 4. Test Firebase connection
+# Navigate to http://localhost:3000/test
+```
+
+
 ## Available Scripts
 
 In the project directory, you can run:

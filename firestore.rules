@@ -1,0 +1,104 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /* ────────────────
+       Helper Functions
+       ──────────────── */
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid))
+          .data.role == "admin";
+    }
+
+    function hasPurchased(courseId) {
+      return isSignedIn() &&
+        courseId in
+        get(/databases/$(database)/documents/users/$(request.auth.uid))
+          .data.purchasedCourses;
+    }
+
+    /* ────────────────
+       Users Collection
+       ──────────────── */
+
+    match /users/{userId} {
+      // User can access only their own profile
+      allow read, write: if isOwner(userId);
+
+      // Admin can access any user
+      allow read, write: if isAdmin();
+
+      /* ─────────────────────────
+         User Progress Subcollection
+         /users/{userId}/progress/{courseId}
+         ───────────────────────── */
+
+      match /progress/{courseId} {
+        // Only owner can read/write progress
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    /* ────────────────
+       Courses Collection
+       ──────────────── */
+
+    match /courses/{courseId} {
+      // Everyone signed in can read course metadata
+      allow read: if isSignedIn();
+
+      // Only admin can create/update/delete courses
+      allow write: if isAdmin();
+
+      /* ─────────────────────────
+         Lessons Subcollection
+         /courses/{courseId}/lessons/{lessonId}
+         ───────────────────────── */
+
+      match /lessons/{lessonId} {
+        // Read logic:
+        // - Admin can read
+        // - OR course is free
+        // - OR user has purchased the course
+        allow read: if
+          isAdmin() ||
+          get(/databases/$(database)/documents/courses/$(courseId))
+            .data.isFree == true ||
+          hasPurchased(courseId);
+
+        // Only admin can manage lessons
+        allow write: if isAdmin();
+      }
+    }
+
+    /* ────────────────
+       Purchases Collection
+       ──────────────── */
+
+    match /purchases/{purchaseId} {
+
+      // User can create a purchase record (PENDING)
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == "pending";
+
+      // User can read only their own purchases
+      allow read: if isSignedIn()
+        && resource.data.userId == request.auth.uid;
+
+      // Only admin (or backend via Admin SDK) can update purchase status
+      allow update, delete: if isAdmin();
+    }
+
+  }
+}
