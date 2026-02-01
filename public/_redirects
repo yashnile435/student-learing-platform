@@ -1,0 +1,6 @@
+# Netlify Redirects/Rewrites
+# Proxy Firebase Auth to bypass 3rd party cookie issues
+/__/auth/*  https://learning-platform-e12be.firebaseapp.com/__/auth/:splat  200!
+
+# SPA Fallback
+/*  /index.html  200
