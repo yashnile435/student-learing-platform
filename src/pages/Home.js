@@ -1,6 +1,6 @@
 
 import { useNavigate } from 'react-router-dom';
-import { FaGraduationCap, FaChalkboardTeacher, FaRocket, FaCheckCircle, FaArrowRight } from 'react-icons/fa';
+import { FaGraduationCap, FaChalkboardTeacher, FaRocket, FaArrowRight } from 'react-icons/fa';
 import '../index.css';
 
 const Home = () => {

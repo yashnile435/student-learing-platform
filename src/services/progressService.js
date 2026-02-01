@@ -1,4 +1,4 @@
-import { arrayUnion, collection, doc, getDoc, getDocs, increment, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
+import { arrayUnion, collection, doc, increment, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
 /**
@@ -17,7 +17,7 @@ const ProgressService = {
         try {
             // Reference to the specific course progress document in sub-collection
             const progressRef = doc(db, 'users', userId, 'progress', courseId);
-            
+
             // Atomic update to add lessonId to array
             await setDoc(progressRef, {
                 courseId: courseId,
@@ -69,14 +69,14 @@ const ProgressService = {
         const progressColl = collection(db, 'users', userId, 'progress');
         return onSnapshot(progressColl, (snapshot) => {
             let allCompleted = [];
-            
+
             snapshot.forEach(doc => {
                 const data = doc.data();
                 if (data.completedLessonIds) {
                     allCompleted = [...allCompleted, ...data.completedLessonIds];
                 }
             });
-            
+
             // Return aggregated format expected by Dashboard
             callback({ completedVideos: allCompleted });
         });

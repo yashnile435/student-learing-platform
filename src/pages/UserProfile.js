@@ -1,7 +1,7 @@
 
 import { collection, doc, documentId, getCountFromServer, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
-import { useEffect, useState } from 'react';
-import { FaBook, FaCalendarAlt, FaChalkboardTeacher, FaEdit, FaEnvelope, FaSave, FaUser, FaUserGraduate, FaUserShield } from 'react-icons/fa';
+import { useEffect, useState, useCallback } from 'react';
+import { FaCalendarAlt, FaEdit, FaEnvelope, FaSave, FaUser, FaUserGraduate, FaUserShield } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
 import '../index.css';
@@ -37,13 +37,7 @@ const UserProfile = () => {
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState('');
 
-    useEffect(() => {
-        if (user) {
-            fetchProfileAndStats();
-        }
-    }, [user, userRole]);
-
-    const fetchProfileAndStats = async () => {
+    const fetchProfileAndStats = useCallback(async () => {
         setLoading(true);
         try {
             // 1. Fetch User Document
@@ -126,7 +120,13 @@ const UserProfile = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user]);
+
+    useEffect(() => {
+        if (user) {
+            fetchProfileAndStats();
+        }
+    }, [user, userRole, fetchProfileAndStats]);
 
     const handleSave = async () => {
         setSaving(true);

@@ -1,6 +1,6 @@
 
 import { collection, doc, getDoc, getDocs, updateDoc, query, where } from 'firebase/firestore';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { FaArrowLeft, FaEdit, FaImage, FaVideo } from 'react-icons/fa';
 import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
@@ -41,7 +41,7 @@ const EditCourse = () => {
         setCourseVideoId(extracted);
     };
 
-    const fetchCourses = async () => {
+    const fetchCourses = useCallback(async () => {
         if (!user) return;
         setLoading(true);
         try {
@@ -63,13 +63,13 @@ const EditCourse = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user, userRole]);
 
     useEffect(() => {
         fetchCourses();
-    }, [user, userRole]);
+    }, [user, userRole, fetchCourses]);
 
-    const resetForm = () => {
+    const resetForm = useCallback(() => {
         setCourseTitle('');
         setCourseDesc('');
         setCoursePrice('');
@@ -78,9 +78,9 @@ const EditCourse = () => {
         setCourseIsFree(false);
         setCourseTeacherId('');
         setEditCourseId('');
-    };
+    }, []);
 
-    const handleCourseSelectForEdit = async (id) => {
+    const handleCourseSelectForEdit = useCallback(async (id) => {
         setEditCourseId(id);
         setMessage('');
 
@@ -110,13 +110,13 @@ const EditCourse = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [resetForm]);
 
     useEffect(() => {
         if (location.state?.courseId) {
             handleCourseSelectForEdit(location.state.courseId);
         }
-    }, [location.state]);
+    }, [location.state, handleCourseSelectForEdit]);
 
     const handleUpdateCourse = async (e) => {
         e.preventDefault();

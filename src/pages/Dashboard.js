@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, onSnapshot, query, where, documentId } from 'firebase/firestore';
+import { collection, onSnapshot, query, where, documentId } from 'firebase/firestore';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { FaArrowLeft, FaCheckCircle, FaPlay } from 'react-icons/fa';
 import { useLocation, useNavigate } from 'react-router-dom';
