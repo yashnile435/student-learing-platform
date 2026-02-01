@@ -10,7 +10,7 @@ import { getFirestore } from "firebase/firestore";
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
     apiKey: "AIzaSyBq2hwZQDp-WGVlxL176K4GBwaftoTqs4M",
-    authDomain: "yatilearningplatform.netlify.app",
+    authDomain: "learning-platform-e12be.firebaseapp.com",
     projectId: "learning-platform-e12be",
     storageBucket: "learning-platform-e12be.firebasestorage.app",
     messagingSenderId: "759606649035",
@@ -20,7 +20,12 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+let analytics;
+try {
+    analytics = getAnalytics(app);
+} catch (e) {
+    console.warn("Firebase Analytics disabled:", e.message);
+}
 const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
