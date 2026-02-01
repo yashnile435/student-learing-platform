@@ -1,0 +1,21 @@
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Secure defaults and cleanup Permissions-Policy to remove unsupported/deprecated features references
+    Permissions-Policy = "geolocation=(), camera=(), microphone=(), payment=(), usb=()"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Firebase Auth Proxy to allow same-domain auth (helps with third-party cookies and some domain checks)
+[[redirects]]
+  from = "/__/auth/*"
+  to = "https://learning-platform-e12be.firebaseapp.com/__/auth/:splat"
+  status = 200
+  force = true
+
+# SPA Fallback for React Router
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
