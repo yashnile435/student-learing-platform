@@ -1,33 +1,36 @@
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+
+import { collection, getDocs, query } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import CourseProgressCard from '../components/CourseProgressCard';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { enrollFreeCourse } from '../services/paymentService';
-import '../styles/Dashboard.css';
-import '../styles/Home.css';
+import '../index.css';
 
 const Courses = () => {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [enrollingId, setEnrollingId] = useState(null); // Track which course is currently enrolling
+    const [enrollingId, setEnrollingId] = useState(null);
+    const [error, setError] = useState('');
     const { user, userData } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                // Fetch actual courses
-                const q = query(collection(db, 'courses')); // Could add orderBy('createdAt') if indexed
+                const q = query(collection(db, 'courses'));
                 const querySnapshot = await getDocs(q);
                 const fetchedCourses = querySnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
                 }));
                 setCourses(fetchedCourses);
-            } catch (error) {
-                console.error("Error fetching courses:", error);
+            } catch (err) {
+                console.error("Error fetching courses:", err);
+                setError("Failed to load courses. Please check your internet connection.");
+                if (err.code === 'permission-denied') {
+                    setError("Access to courses was denied. Please check Firestore Security Rules.");
+                }
             } finally {
                 setLoading(false);
             }
@@ -38,8 +41,7 @@ const Courses = () => {
 
     const isEnrolled = (courseId) => {
         if (!user || !userData) return false;
-        // Admins have access to everything, essentially "enrolled"
-        if (userData.role === 'admin') return true; 
+        if (userData.role === 'admin') return true;
         return userData.purchasedCourses?.includes(courseId);
     };
 
@@ -48,20 +50,15 @@ const Courses = () => {
             navigate('/signup');
             return;
         }
-
-        // 1. If already enrolled, go to Dashboard (Course View)
         if (isEnrolled(course.id)) {
             navigate('/dashboard', { state: { courseId: course.id } });
             return;
         }
 
-        // 2. If Review/Purchasing Logic
         if (course.isFree) {
-            // Free Course: Auto-Enroll
             setEnrollingId(course.id);
             try {
                 await enrollFreeCourse(user.uid, course.id);
-                // Navigate after success
                 navigate('/dashboard', { state: { courseId: course.id } });
             } catch (error) {
                 alert("Failed to enroll. Please try again.");
@@ -69,59 +66,68 @@ const Courses = () => {
                 setEnrollingId(null);
             }
         } else {
-            // Paid Course: Go to Checkout
             navigate('/checkout', { state: { course } });
         }
     };
 
     if (loading) {
+        return <div className="p-4 text-center">Loading Courses...</div>;
+    }
+
+    if (error) {
         return (
-            <div className="container" style={{ paddingTop: '100px', textAlign: 'center' }}>
-                <div className="spinner"></div>
-                <p>Loading Courses...</p>
+            <div className="container" style={{ padding: '3rem 1rem', textAlign: 'center' }}>
+                <h3 style={{ color: 'var(--danger-color)' }}>{error}</h3>
+                <button className="btn btn-primary mt-4" onClick={() => window.location.reload()}>Retry</button>
             </div>
         );
     }
 
     return (
-        <div className="home-container" style={{paddingTop: '80px'}}>
-            <div className="container">
-                <div style={{textAlign: 'center', marginBottom: '3rem'}}>
-                    <h1>Explore Our Courses</h1>
-                    <p className="hero-subtitle" style={{color: 'var(--text-muted)'}}>
-                        Discover a wide range of programming and tech courses designed to boost your career.
-                    </p>
-                </div>
+        <div className="container" style={{ padding: '3rem 1rem' }}>
+            <div className="text-center mb-4">
+                <h1>Explore Courses</h1>
+                <p>Discover new skills and advance your career.</p>
+            </div>
 
-                <div className="video-grid">
-                    {courses.map(course => (
-                        <div key={course.id} className="course-wrapper" style={{position: 'relative'}}>
-                            {enrollingId === course.id && (
-                                <div className="overlay-loading" style={{
-                                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                                    background: 'rgba(255,255,255,0.8)', zIndex: 10,
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    borderRadius: '16px'
-                                }}>
-                                    <div className="spinner"></div>
-                                </div>
-                            )}
-                            <CourseProgressCard 
-                                course={course} 
-                                onClick={handleCourseClick}
-                                hideProgress={true}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
+                {courses.map(course => (
+                    <div key={course.id} className="card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                        <div style={{ height: '200px', background: '#e5e7eb' }}>
+                            <img
+                                src={course.thumbnail || 'https://via.placeholder.com/400x250'}
+                                alt={course.title}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             />
                         </div>
-                    ))}
-                    
-                    {courses.length === 0 && (
-                       <div style={{textAlign: 'center', width: '100%'}}>
-                           <h3>No courses available at the moment.</h3>
-                           <p>Please check back later.</p>
-                       </div>
-                    )}
-                </div>
+                        <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                            <div className="flex justify-between items-center mb-2">
+                                <span className={`badge ${course.isFree ? 'badge-free' : 'badge-paid'}`}>
+                                    {course.isFree ? 'FREE' : `₹${course.price}`}
+                                </span>
+                            </div>
+                            <h3 style={{ marginBottom: '0.5rem' }}>{course.title}</h3>
+                            <p style={{ flex: 1, fontSize: '0.9rem' }}>
+                                {course.description?.substring(0, 100)}...
+                            </p>
+
+                            <button
+                                className="btn btn-primary w-full mt-4"
+                                onClick={() => handleCourseClick(course)}
+                                disabled={enrollingId === course.id}
+                            >
+                                {enrollingId === course.id ? 'Enrolling...' : (isEnrolled(course.id) ? 'Go to Course' : (course.isFree ? 'Enroll Now' : 'Buy Now'))}
+                            </button>
+                        </div>
+                    </div>
+                ))}
             </div>
+
+            {courses.length === 0 && (
+                <div style={{ textAlign: 'center', width: '100%', padding: '3rem' }}>
+                    <h3>No courses available at the moment.</h3>
+                </div>
+            )}
         </div>
     );
 };

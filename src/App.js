@@ -1,94 +1,85 @@
-
-import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-import './App.css';
-import Navbar from './components/Navbar';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import ChangePassword from './pages/ChangePassword';
-import Dashboard from './pages/Dashboard';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import Courses from './pages/Courses';
+import PublicRoute from './components/PublicRoute';
+
+// Layouts
+import PublicLayout from './layouts/PublicLayout';
+import DashboardLayout from './layouts/DashboardLayout';
+
+// Pages
 import Home from './pages/Home';
+import Courses from './pages/Courses';
 import Login from './pages/Login';
-import SetupAdmin from './pages/SetupAdmin';
 import Signup from './pages/Signup';
-import UserProfile from './pages/UserProfile';
-import TestFirebase from './pages/TestFirebase';
 import Checkout from './pages/Checkout';
 
+// Authenticated Pages
+import Dashboard from './pages/Dashboard';
+import UserProfile from './pages/UserProfile';
+import ChangePassword from './pages/ChangePassword';
+
 // Admin Pages
-import AdminLayout from './pages/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageCourses from './pages/admin/ManageCourses';
 import CreateCourse from './pages/admin/CreateCourse';
 import EditCourse from './pages/admin/EditCourse';
 import AddLesson from './pages/admin/AddLesson';
 import Reports from './pages/admin/Reports';
-
-const DashboardSwitcher = () => {
-  const { userRole } = useAuth();
-  if (userRole === 'admin') {
-      return <Navigate to="/admin" replace />;
-  }
-  return <Dashboard />;
-};
+import CreateTeacher from './pages/admin/CreateTeacher';
+import ManageTeachers from './pages/admin/ManageTeachers';
 
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <Navbar />
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/courses" element={<Courses />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/setup-admin" element={<SetupAdmin />} />
-          <Route path="/test" element={<TestFirebase />} />
+          {/* Public Context */}
+          <Route element={<PublicLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/courses" element={<Courses />} />
+            <Route
+              path="/login"
+              element={<PublicRoute><Login /></PublicRoute>}
+            />
+            <Route
+              path="/signup"
+              element={<PublicRoute><Signup /></PublicRoute>}
+            />
+            <Route path="/checkout" element={<Checkout />} />
+          </Route>
 
-          {/* Protected Routes */}
+          {/* Student Routes - using DashboardLayout */}
+          {/* Student Routes - using DashboardLayout */}
+          <Route element={<PrivateRoute roleRequired="student"><DashboardLayout /></PrivateRoute>}>
+            <Route path="/dashboard" element={<Dashboard />} />
+          </Route>
 
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateRoute>
-                <DashboardSwitcher />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <PrivateRoute>
-                <UserProfile />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/checkout"
-            element={
-              <PrivateRoute>
-                <Checkout />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/change-password"
-            element={
-              <PrivateRoute>
-                <ChangePassword />
-              </PrivateRoute>
-            }
-          />
+          {/* Common Authenticated Routes (Profile, Settings) */}
+          <Route element={<PrivateRoute roleRequired={['student', 'admin', 'teacher']}><DashboardLayout /></PrivateRoute>}>
+            <Route path="/profile" element={<UserProfile />} />
+            <Route path="/change-password" element={<ChangePassword />} />
+          </Route>
 
-          {/* Admin Routes */}
-          <Route path="/admin" element={<PrivateRoute roleRequired="admin"><AdminLayout /></PrivateRoute>}>
+          {/* Admin & Teacher Routes - using DashboardLayout */}
+          <Route path="/admin" element={<PrivateRoute roleRequired={['admin', 'teacher']}><DashboardLayout /></PrivateRoute>}>
             <Route index element={<AdminDashboard />} />
-            <Route path="manage" element={<ManageCourses />} />
-            <Route path="create" element={<CreateCourse />} />
+
+            {/* Admin Only */}
+            <Route path="manage" element={<PrivateRoute roleRequired="admin"><ManageCourses /></PrivateRoute>} />
+            <Route path="create" element={<PrivateRoute roleRequired="admin"><CreateCourse /></PrivateRoute>} />
+            <Route path="create-teacher" element={<PrivateRoute roleRequired="admin"><CreateTeacher /></PrivateRoute>} />
+            <Route path="manage-teachers" element={<PrivateRoute roleRequired="admin"><ManageTeachers /></PrivateRoute>} />
+            <Route path="reports" element={<PrivateRoute roleRequired="admin"><Reports /></PrivateRoute>} />
+
+            {/* Shared (Admin + Teacher) */}
             <Route path="edit" element={<EditCourse />} />
             <Route path="add-lesson" element={<AddLesson />} />
-            <Route path="reports" element={<Reports />} />
           </Route>
+
+          {/* Catch all */}
+          {/* If logged in, maybe go to dashboard? For now, Home. */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </AuthProvider>

@@ -1,4 +1,3 @@
-
 .navbar {
     background-color: #fff;
     height: 80px;
@@ -111,7 +110,7 @@
     height: 12px;
     background-color: #fff;
     transform: rotate(45deg);
-    border-top: 1px solid rgba(0,0,0,0.05);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
     border-left: 1px solid rgba(0, 0, 0, 0.05);
 }
 
@@ -286,5 +285,30 @@
         font-size: 0.9rem;
         width: auto;
         display: inline-flex;
+    }
+}
+
+/* Back Button Styles */
+.nav-back-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-main);
+    font-weight: 600;
+    cursor: pointer;
+    margin-right: 1.5rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.nav-back-btn:hover {
+    color: var(--primary-color);
+    background-color: #f7fafc;
+}
+
+@media screen and (max-width: 960px) {
+    .nav-back-btn {
+        margin-right: auto;
     }
 }

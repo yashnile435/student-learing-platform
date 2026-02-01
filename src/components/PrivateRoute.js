@@ -13,12 +13,16 @@ const PrivateRoute = ({ children, roleRequired }) => {
         return <Navigate to="/login" />;
     }
 
-    if (roleRequired && userRole !== roleRequired) {
-        // Redirect based on their ACTUAL role
-        if (userRole === 'admin') {
-            return <Navigate to="/admin" />;
+    if (roleRequired) {
+        const allowedRoles = Array.isArray(roleRequired) ? roleRequired : [roleRequired];
+
+        if (!allowedRoles.includes(userRole)) {
+            // Redirect based on their ACTUAL role
+            if (userRole === 'admin' || userRole === 'teacher') {
+                return <Navigate to="/admin" />;
+            }
+            return <Navigate to="/dashboard" />;
         }
-        return <Navigate to="/dashboard" />;
     }
 
     return children;

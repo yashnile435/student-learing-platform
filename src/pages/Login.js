@@ -5,10 +5,10 @@ import { FaGoogle } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
-import '../styles/Auth.css';
+import '../index.css'; // Ensure new styles
 
 const Login = () => {
-    const [email, setEmail] = useState('');
+    const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -19,8 +19,7 @@ const Login = () => {
     const checkRoleAndRedirect = async (uid) => {
         const userDocRef = doc(db, 'users', uid);
         const userDoc = await getDoc(userDocRef);
-        // Robust check: Redirect based on role in DB
-        if (userDoc.exists() && userDoc.data().role === 'admin') {
+        if (userDoc.exists() && (userDoc.data().role === 'admin' || userDoc.data().role === 'teacher')) {
             navigate('/admin', { replace: true });
         } else {
             navigate('/dashboard', { replace: true });
@@ -32,7 +31,7 @@ const Login = () => {
         try {
             setError('');
             setLoading(true);
-            const result = await login(email, password);
+            const result = await login(identifier, password);
             await checkRoleAndRedirect(result.user.uid);
         } catch (err) {
             console.error(err);
@@ -41,6 +40,8 @@ const Login = () => {
                 msg = 'Invalid email or password.';
             } else if (err.code === 'auth/too-many-requests') {
                 msg = 'Too many failed attempts. Try again later.';
+            } else if (err.code === 'auth/invalid-email') {
+                msg = 'Invalid email address.';
             }
             setError(msg);
         }
@@ -60,20 +61,21 @@ const Login = () => {
     };
 
     return (
-        <div className="auth-container">
-            <div className="card auth-card">
-                <h2 className="auth-title">Welcome Back</h2>
-                {error && <div className="error-message">{error}</div>}
+        <div style={{ maxWidth: '400px', margin: '4rem auto', padding: '0 1rem' }}>
+            <div className="card">
+                <h2 className="text-center" style={{ marginBottom: '2rem' }}>Welcome Back</h2>
+                {error && <div style={{ background: '#fee2e2', color: '#991b1b', padding: '0.75rem', borderRadius: 'var(--radius)', marginBottom: '1rem', fontSize: '0.875rem' }}>{error}</div>}
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label className="form-label">Email</label>
+                        <label className="form-label">Email Address</label>
                         <input
                             type="email"
                             className="form-input"
                             required
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={identifier}
+                            onChange={(e) => setIdentifier(e.target.value)}
+                            placeholder="you@example.com"
                         />
                     </div>
                     <div className="form-group">
@@ -84,28 +86,29 @@ const Login = () => {
                             required
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            placeholder="••••••••"
                         />
                     </div>
-                    <button disabled={loading} type="submit" className="btn btn-primary full-width">
+                    <button disabled={loading} type="submit" className="btn btn-primary w-full" style={{ marginBottom: '1rem' }}>
                         {loading ? 'Logging In...' : 'Log In'}
                     </button>
+
+                    <div style={{ textAlign: 'center', margin: '1rem 0', color: 'var(--text-muted)', fontSize: '0.875rem' }}>OR</div>
+
+                    <button
+                        type="button"
+                        onClick={handleGoogleLogin}
+                        disabled={loading}
+                        className="btn btn-secondary w-full"
+                        style={{ display: 'flex', gap: '0.5rem' }}
+                    >
+                        <FaGoogle /> Continue with Google
+                    </button>
+
+                    <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.875rem' }}>
+                        Don't have an account? <Link to="/signup" style={{ color: 'var(--primary-color)', fontWeight: 500 }}>Sign Up</Link>
+                    </div>
                 </form>
-
-                <div className="auth-divider">
-                    <span>OR</span>
-                </div>
-
-                <button
-                    onClick={handleGoogleLogin}
-                    disabled={loading}
-                    className="btn btn-google full-width"
-                >
-                    <FaGoogle /> Continue with Google
-                </button>
-
-                <div className="auth-footer">
-                    Don't have an account? <Link to="/signup" className="auth-link">Sign Up</Link>
-                </div>
             </div>
         </div>
     );

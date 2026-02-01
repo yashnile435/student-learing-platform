@@ -1,6 +1,5 @@
-
-import { addDoc, collection } from 'firebase/firestore';
-import { useState } from 'react';
+import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
 import { db } from '../../firebase';
 import '../../styles/Admin.css';
 
@@ -14,6 +13,24 @@ const CreateCourse = () => {
     const [courseIsFree, setCourseIsFree] = useState(false);
     const [courseThumbnail, setCourseThumbnail] = useState('');
     const [courseVideoId, setCourseVideoId] = useState('');
+
+    // Teacher Assignment
+    const [teachers, setTeachers] = useState([]);
+    const [selectedTeacher, setSelectedTeacher] = useState('');
+
+    useEffect(() => {
+        const fetchTeachers = async () => {
+            try {
+                const q = query(collection(db, 'users'), where('role', '==', 'teacher'));
+                const snap = await getDocs(q);
+                const list = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                setTeachers(list);
+            } catch (err) {
+                console.error("Error fetching teachers:", err);
+            }
+        };
+        fetchTeachers();
+    }, []);
 
     const extractVideoId = (input) => {
         if (!input) return '';
@@ -35,6 +52,7 @@ const CreateCourse = () => {
         setCourseThumbnail('');
         setCourseVideoId('');
         setCourseIsFree(false);
+        setSelectedTeacher('');
     };
 
     const handleCreateCourse = async (e) => {
@@ -50,6 +68,7 @@ const CreateCourse = () => {
                 isFree: courseIsFree,
                 thumbnail: courseThumbnail.trim(),
                 videoId: courseVideoId.trim(),
+                teacherId: selectedTeacher || null,
                 totalLessons: 0,
                 createdAt: new Date().toISOString()
             });
@@ -77,6 +96,21 @@ const CreateCourse = () => {
                 <label className="form-label">Description</label>
                 <textarea className="form-input" value={courseDesc} onChange={e => setCourseDesc(e.target.value)} required />
             </div>
+
+            <div className="form-group">
+                <label className="form-label">Assign Teacher (Optional)</label>
+                <select
+                    className="form-input"
+                    value={selectedTeacher}
+                    onChange={e => setSelectedTeacher(e.target.value)}
+                >
+                    <option value="">-- Select a Teacher --</option>
+                    {teachers.map(t => (
+                        <option key={t.id} value={t.id}>{t.name} ({t.email})</option>
+                    ))}
+                </select>
+            </div>
+
             <div className="form-group">
                 <label className="form-label">Thumbnail URL</label>
                 <input className="form-input" value={courseThumbnail} onChange={e => setCourseThumbnail(e.target.value)} placeholder="https://..." />
@@ -85,12 +119,12 @@ const CreateCourse = () => {
             <div className="form-group">
                 <label className="form-label">Intro Video ID (Youtube)</label>
                 <input className="form-input" value={courseVideoId} onChange={handleVideoIdChange} placeholder="e.g. dQw4w9WgXcQ or Full URL" />
-                <small style={{color: '#666'}}>Used for preview thumbnail if Custom Thumbnail is empty.</small>
+                <small style={{ color: '#666' }}>Used for preview thumbnail if Custom Thumbnail is empty.</small>
             </div>
-            
+
             {!courseIsFree && (
                 <div className="form-group">
-                    <label className="form-label">Price ($)</label>
+                    <label className="form-label">Price (₹)</label>
                     <input type="number" className="form-input" value={coursePrice} onChange={e => setCoursePrice(e.target.value)} />
                 </div>
             )}

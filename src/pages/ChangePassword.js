@@ -3,7 +3,8 @@ import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import '../styles/Auth.css'; 
+import '../styles/Auth.css';
+import PasswordInput from '../components/PasswordInput';
 
 const ChangePassword = () => {
     const { user } = useAuth();
@@ -17,7 +18,7 @@ const ChangePassword = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (newPassword !== confirmPassword) {
             return setError('New passwords do not match');
         }
@@ -58,26 +59,22 @@ const ChangePassword = () => {
             <div className="auth-card card">
                 <h2 className="auth-title">Change Password</h2>
                 {error && <div className="error-message">{error}</div>}
-                {success && <div className="success-message" style={{color: 'green', marginBottom: '1rem', textAlign: 'center', backgroundColor: '#dcfce7', padding: '0.75rem', borderRadius: '0.5rem'}}>{success}</div>}
-                
+                {success && <div className="success-message" style={{ color: 'green', marginBottom: '1rem', textAlign: 'center', backgroundColor: '#dcfce7', padding: '0.75rem', borderRadius: '0.5rem' }}>{success}</div>}
+
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label className="form-label">Current Password</label>
-                        <input
-                            type="password"
-                            className="form-input"
+                        <PasswordInput
+                            label="Current Password"
                             value={currentPassword}
                             onChange={(e) => setCurrentPassword(e.target.value)}
                             required
                             placeholder="Enter current password"
                         />
                     </div>
-                    
+
                     <div className="form-group">
-                        <label className="form-label">New Password</label>
-                        <input
-                            type="password"
-                            className="form-input"
+                        <PasswordInput
+                            label="New Password"
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
                             required
@@ -86,10 +83,8 @@ const ChangePassword = () => {
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Confirm New Password</label>
-                        <input
-                            type="password"
-                            className="form-input"
+                        <PasswordInput
+                            label="Confirm New Password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             required

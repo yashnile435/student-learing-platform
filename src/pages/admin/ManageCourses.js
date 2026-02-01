@@ -1,10 +1,11 @@
-
+import { useNavigate } from 'react-router-dom';
 import { collection, deleteDoc, doc, getDocs, writeBatch } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { db } from '../../firebase';
-import '../../styles/Admin.css';
+import '../../index.css';
 
 const ManageCourses = () => {
+    const navigate = useNavigate();
     const [coursesList, setCoursesList] = useState([]);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
@@ -28,12 +29,12 @@ const ManageCourses = () => {
 
     const handleDeleteCourse = async (id) => {
         if (!window.confirm("Are you sure? This will delete the course and ALL its lessons permanently.")) return;
-        
+
         setLoading(true);
         try {
             const lessonsRef = collection(db, 'courses', id, 'lessons');
             const lessonsSnap = await getDocs(lessonsRef);
-            
+
             const batch = writeBatch(db);
             lessonsSnap.forEach((doc) => {
                 batch.delete(doc.ref);
@@ -43,7 +44,7 @@ const ManageCourses = () => {
             await deleteDoc(doc(db, 'courses', id));
 
             setMessage('Course deleted successfully.');
-            fetchCourses(); 
+            fetchCourses();
         } catch (err) {
             console.error(err);
             setMessage('Error deleting course.');
@@ -55,19 +56,18 @@ const ManageCourses = () => {
     return (
         <div>
             <h1 className="mb-4">Manage Courses</h1>
-            {message && <div className={`alert ${message.includes('Error') ? 'alert-danger' : 'alert-success'}`}>{message}</div>}
-            
+            {message && <div style={{ marginBottom: '1rem', padding: '1rem', background: message.includes('Error') ? '#fee2e2' : '#d1fae5', color: message.includes('Error') ? '#991b1b' : '#065f46', borderRadius: 'var(--radius)' }}>{message}</div>}
+
             {loading && <p>Loading...</p>}
 
             {!loading && coursesList.length === 0 ? <p>No courses found.</p> : (
-                <div className="admin-table-wrapper">
-                    <table className="admin-table">
+                <div className="table-container card" style={{ padding: 0 }}>
+                    <table className="table">
                         <thead>
                             <tr>
                                 <th>Title</th>
                                 <th>Type</th>
                                 <th>Lessons</th>
-                                <th>Popularity</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -76,16 +76,23 @@ const ManageCourses = () => {
                                 <tr key={course.id}>
                                     <td>{course.title}</td>
                                     <td>
-                                        <span className={`badge ${course.isFree ? 'free' : 'premium'}`}>
+                                        <span className={`badge ${course.isFree ? 'badge-free' : 'badge-paid'}`}>
                                             {course.isFree ? 'FREE' : 'PAID'}
                                         </span>
                                     </td>
                                     <td>{course.totalLessons || 0}</td>
-                                    <td>{course.popularity || 0} views</td>
-                                    <td>
-                                        <button 
+                                    <td style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <button
+                                            onClick={() => navigate('/admin/edit', { state: { courseId: course.id } })}
+                                            className="btn btn-primary"
+                                            style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
                                             onClick={() => handleDeleteCourse(course.id)}
-                                            className="btn-delete"
+                                            className="btn btn-danger"
+                                            style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
                                         >
                                             Delete
                                         </button>

@@ -1,10 +1,10 @@
-
 import {
     createUserWithEmailAndPassword,
     onAuthStateChanged,
     signInWithEmailAndPassword,
     signInWithPopup,
-    signOut
+    signOut,
+    updateProfile
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { createContext, useContext, useEffect, useState } from 'react';
@@ -27,17 +27,17 @@ export const AuthProvider = ({ children }) => {
         const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
             if (currentUser) {
                 setUser(currentUser);
-                
+
                 // Subscribe to user document changes logic
                 const userDocRef = doc(db, 'users', currentUser.uid);
-                
+
                 unsubscribeUserDoc = onSnapshot(userDocRef, (docSnapshot) => {
                     if (docSnapshot.exists()) {
                         const data = docSnapshot.data();
                         setUserRole(data.role);
                         setUserData(data);
                     } else {
-                        // User document missing?
+                        // User document might not exist yet during creation
                         setUserRole('student');
                         setUserData(null);
                     }
@@ -62,32 +62,33 @@ export const AuthProvider = ({ children }) => {
         };
     }, []);
 
-    const signup = async (email, password, name) => {
+    const signup = async (email, password, name, mobile) => {
+        // 1. Create User in Auth
         const result = await createUserWithEmailAndPassword(auth, email, password);
-        
-        // Update auth profile
+
+        // 2. Update Auth Profile (Display Name)
         try {
-             // We can't use updateProfile here directly easily without importing. 
-             // Actually `createUserWithEmailAndPassword` returns UserCredential.
-             // We need to import `updateProfile` from 'firebase/auth'.
-             // I will add the import in a separate block or accept that I need to do it.
-             // But wait, I can just use the tool to add the import first.
-             // Or I can do it all in one tool but `updateProfile` is not imported.
-             // I'll skip updateProfile here to avoid import errors and rely on Firestore `userData.name` which is safer.
+            await updateProfile(result.user, {
+                displayName: name
+            });
         } catch (e) {
-            console.error("Error updating profile", e);
+            console.error("Error updating auth profile:", e);
         }
 
-        // Create user document in Firestore
+        // 3. Create User Document in Firestore
+        // We explicitly set role to 'student' (Normal User)
         await setDoc(doc(db, 'users', result.user.uid), {
             uid: result.user.uid,
             email: email,
             name: name,
-            role: 'student', // Default role
-            overallProgress: 1, // Requirement: Start with 1%
+            mobile: mobile,
+            role: 'student',
+            overallProgress: 1,
             purchasedCourses: [],
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            lastLogin: new Date().toISOString()
         });
+
         return result;
     };
 
@@ -120,11 +121,11 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         const result = await signInWithEmailAndPassword(auth, email, password);
-        
+
         // Save login data to Firestore
         const deviceInfo = getDeviceInfo();
         const userDocRef = doc(db, 'users', result.user.uid);
-        
+
         try {
             await setDoc(userDocRef, {
                 lastLogin: new Date().toISOString(),
@@ -134,14 +135,14 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             console.error('Error saving login data:', error);
         }
-        
+
         return result;
     };
 
     const loginWithGoogle = async () => {
         const result = await signInWithPopup(auth, googleProvider);
         const deviceInfo = getDeviceInfo();
-        
+
         // Check if user exists, if not create
         const userDocRef = doc(db, 'users', result.user.uid);
         const userDoc = await getDoc(userDocRef);

@@ -54,8 +54,8 @@ service cloud.firestore {
        ──────────────── */
 
     match /courses/{courseId} {
-      // Everyone signed in can read course metadata
-      allow read: if isSignedIn();
+      // Everyone can read course metadata (Public Catalog)
+      allow read: if true;
 
       // Only admin can create/update/delete courses
       allow write: if isAdmin();

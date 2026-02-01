@@ -6,21 +6,21 @@ import ProgressService from '../services/progressService';
 import '../styles/VideoPlayer.css';
 
 const VideoPlayer = ({ video, courseId = 'general', onClose }) => {
-    const { user } = useAuth();
+    const { user, userRole } = useAuth();
     const [markingComplete, setMarkingComplete] = useState(false);
     const [isCompleted, setIsCompleted] = useState(false);
 
     // check completion status on mount if not passed
     useEffect(() => {
         if (!user || !video) return;
-        
+
         // We can check local specific status if needed, 
         // or rely on the parent validating it.
         // For accurate button state, let's subscribe or check once.
         const unsubscribe = ProgressService.subscribeToCourseProgress(user.uid, courseId, (data) => {
-             if (data.completedLessonIds && data.completedLessonIds.includes(video.id)) {
-                 setIsCompleted(true);
-             }
+            if (data.completedLessonIds && data.completedLessonIds.includes(video.id)) {
+                setIsCompleted(true);
+            }
         });
         return () => unsubscribe();
     }, [user, video, courseId]);
@@ -29,6 +29,8 @@ const VideoPlayer = ({ video, courseId = 'general', onClose }) => {
 
     const handleComplete = async () => {
         if (!user) return;
+        if (userRole === 'student') return; // Double protection
+
         setMarkingComplete(true);
         try {
             await ProgressService.markLessonComplete(user.uid, courseId, video.id);
@@ -60,8 +62,8 @@ const VideoPlayer = ({ video, courseId = 'general', onClose }) => {
                 <div className="video-details">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                         <h2>{video.title}</h2>
-                        {user && (
-                            <button 
+                        {user && userRole !== 'student' && (
+                            <button
                                 className={`btn ${isCompleted ? 'btn-success' : 'btn-secondary'}`}
                                 onClick={handleComplete}
                                 disabled={markingComplete || isCompleted}
