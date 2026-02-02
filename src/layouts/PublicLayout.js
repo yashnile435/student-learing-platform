@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { FaBars, FaTimes, FaUser } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext';
 import '../index.css';
 
 const PublicLayout = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const { user } = useAuth(); // Get user from AuthContext
 
     return (
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -25,8 +27,14 @@ const PublicLayout = () => {
                 {/* Desktop Menu */}
                 <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }} className="hide-mobile">
                     <Link to="/courses" style={{ fontWeight: 500 }}>Browse Courses</Link>
-                    <Link to="/login" style={{ fontWeight: 500 }}>Login</Link>
-                    <Link to="/signup" className="btn btn-primary">Get Started</Link>
+                    {user ? (
+                        <Link to="/dashboard" className="btn btn-primary">Dashboard</Link>
+                    ) : (
+                        <>
+                            <Link to="/login" style={{ fontWeight: 500 }}>Login</Link>
+                            <Link to="/signup" className="btn btn-primary">Get Started</Link>
+                        </>
+                    )}
                 </div>
 
                 {/* Mobile Menu Toggle */}
@@ -90,19 +98,35 @@ const PublicLayout = () => {
 
                         {/* Action Buttons */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: 'auto', paddingBottom: '2rem' }}>
-                            <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="btn btn-primary" style={{
-                                width: '100%',
-                                textAlign: 'center',
-                                padding: '1rem',
-                                fontSize: '1.1rem',
-                                borderRadius: '50px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '0.5rem'
-                            }}>
-                                <FaUser /> Login
-                            </Link>
+                            {user ? (
+                                <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="btn btn-primary" style={{
+                                    width: '100%',
+                                    textAlign: 'center',
+                                    padding: '1rem',
+                                    fontSize: '1.1rem',
+                                    borderRadius: '50px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '0.5rem'
+                                }}>
+                                    <FaUser /> Go to Dashboard
+                                </Link>
+                            ) : (
+                                <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="btn btn-primary" style={{
+                                    width: '100%',
+                                    textAlign: 'center',
+                                    padding: '1rem',
+                                    fontSize: '1.1rem',
+                                    borderRadius: '50px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '0.5rem'
+                                }}>
+                                    <FaUser /> Login
+                                </Link>
+                            )}
                         </div>
                     </div>
                 )}

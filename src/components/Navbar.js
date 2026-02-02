@@ -47,11 +47,20 @@ const Navbar = () => {
                         YaTi Learning
                     </Link>
 
-                    <div className="menu-icon" onClick={toggleMenu}>
-                        {isOpen ? <FaTimes /> : <FaBars />}
-                    </div>
+                    {!isOpen && (
+                        <div className="menu-icon" onClick={toggleMenu}>
+                            <FaBars />
+                        </div>
+                    )}
+
+                    {isOpen && (
+                        <div className="sidebar-close-icon" onClick={toggleMenu}>
+                            <FaTimes />
+                        </div>
+                    )}
 
                     <ul className={isOpen ? "nav-menu active" : "nav-menu"}>
+                        {/* Close button removed from here */}
                         {userRole !== 'admin' && (
                             <li className="nav-item">
                                 <Link to="/" className="nav-link" onClick={toggleMenu}>Home</Link>
