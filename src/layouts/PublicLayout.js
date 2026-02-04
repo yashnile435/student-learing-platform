@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { FaBars, FaTimes, FaUser } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import '../index.css';
@@ -7,6 +7,7 @@ import '../index.css';
 const PublicLayout = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { user } = useAuth(); // Get user from AuthContext
+    const location = useLocation();
 
     return (
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -26,7 +27,23 @@ const PublicLayout = () => {
 
                 {/* Desktop Menu */}
                 <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }} className="hide-mobile">
+                    <Link
+                        to="/"
+                        style={{
+                            fontWeight: 500,
+                            color: location.pathname === '/' ? 'var(--primary-color)' : 'inherit',
+                            fontWeight: location.pathname === '/' ? '700' : '500'
+                        }}
+                    >
+                        Home
+                    </Link>
                     <Link to="/courses" style={{ fontWeight: 500 }}>Browse Courses</Link>
+                    <span
+                        onClick={() => document.getElementById('footer')?.scrollIntoView({ behavior: 'smooth' })}
+                        style={{ fontWeight: 500, cursor: 'pointer' }}
+                    >
+                        Contact
+                    </span>
                     {user ? (
                         <Link to="/dashboard" className="btn btn-primary">Dashboard</Link>
                     ) : (

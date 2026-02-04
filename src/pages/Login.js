@@ -2,8 +2,9 @@
 import { doc, getDoc } from 'firebase/firestore';
 import { useState } from 'react';
 import { FaGoogle } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import PasswordInput from '../components/PasswordInput';
 import { db } from '../firebase';
 import '../index.css'; // Ensure new styles
 
@@ -15,8 +16,15 @@ const Login = () => {
 
     const { login, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const checkRoleAndRedirect = async (uid) => {
+        // Check for redirect path
+        if (location.state?.from) {
+            navigate(location.state.from, { state: location.state, replace: true });
+            return;
+        }
+
         const userDocRef = doc(db, 'users', uid);
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists() && (userDoc.data().role === 'admin' || userDoc.data().role === 'teacher')) {
@@ -78,17 +86,13 @@ const Login = () => {
                             placeholder="you@example.com"
                         />
                     </div>
-                    <div className="form-group">
-                        <label className="form-label">Password</label>
-                        <input
-                            type="password"
-                            className="form-input"
-                            required
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="••••••••"
-                        />
-                    </div>
+                    <PasswordInput
+                        label="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        placeholder="••••••••"
+                    />
                     <button disabled={loading} type="submit" className="btn btn-primary w-full" style={{ marginBottom: '1rem' }}>
                         {loading ? 'Logging In...' : 'Log In'}
                     </button>

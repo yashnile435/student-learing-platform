@@ -284,11 +284,43 @@ p {
   height: var(--header-height);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0 1.5rem;
   font-weight: 700;
   color: white;
   font-size: 1.25rem;
   border-bottom: 1px solid #374151;
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: white;
+}
+
+.sidebar-close-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  margin-right: -0.5rem;
+  /* align with padding */
+}
+
+/* Hide desktop helper */
+.hide-desktop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .hide-desktop {
+    display: flex;
+  }
 }
 
 .sidebar-nav {
@@ -643,8 +675,7 @@ p {
   justify-content: center;
   font-size: 1.5rem;
   padding: 0.5rem;
-  z-index: 1001;
-  /* Above sidebar */
+  /* z-index removed so it stays behind sidebar */
 }
 
 @media (max-width: 768px) {

@@ -1,7 +1,7 @@
 
 import { collection, getDocs, query } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { enrollFreeCourse } from '../services/paymentService';
@@ -14,6 +14,7 @@ const Courses = () => {
     const [error, setError] = useState('');
     const { user, userData } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -47,7 +48,13 @@ const Courses = () => {
 
     const handleCourseClick = async (course) => {
         if (!user) {
-            navigate('/signup');
+            navigate('/login', {
+                state: {
+                    from: location.pathname,
+                    courseId: course.id,
+                    action: 'enroll_resume'
+                }
+            });
             return;
         }
         if (isEnrolled(course.id)) {
@@ -70,6 +77,17 @@ const Courses = () => {
         }
     };
 
+    useEffect(() => {
+        if (!loading && user && location.state?.action === 'enroll_resume' && location.state?.courseId) {
+            const courseToResume = courses.find(c => c.id === location.state.courseId);
+            if (courseToResume) {
+                // Automatically resume the action
+                handleCourseClick(courseToResume);
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [loading, user, courses]); // depend on courses to ensure they are loaded
+
     if (loading) {
         return <div className="p-4 text-center">Loading Courses...</div>;
     }
@@ -90,7 +108,7 @@ const Courses = () => {
                 <p>Discover new skills and advance your career.</p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.5rem' }}>
                 {courses.map(course => (
                     <div key={course.id} className="card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                         <div style={{ height: '200px', background: '#e5e7eb' }}>

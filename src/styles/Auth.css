@@ -155,6 +155,10 @@
     width: 100%;
 }
 
+.password-wrapper input {
+    padding-right: 40px;
+}
+
 .password-toggle-icon {
     position: absolute;
     right: 12px;

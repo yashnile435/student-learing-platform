@@ -3,6 +3,7 @@ import { createUserWithEmailAndPassword, getAuth, updateProfile, signOut } from 
 import { doc, setDoc } from "firebase/firestore";
 import { useState } from "react";
 import { db } from "../../firebase";
+import PasswordInput from "../../components/PasswordInput";
 
 // Re-use config to create a secondary app instance
 const firebaseConfig = {
@@ -117,17 +118,15 @@ const CreateTeacher = () => {
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Temporary Password</label>
-                        <input
-                            type="text" // Visible text for admin to copy
-                            className="form-input"
+                        <PasswordInput
+                            label="Temporary Password"
                             value={password}
                             onChange={e => setPassword(e.target.value)}
                             required
                             placeholder="Enter a strong password"
                             minLength={6}
                         />
-                        <small style={{ color: '#666' }}>Share this credentials securely with the instructor.</small>
+                        <small style={{ color: '#666', display: 'block', marginTop: '0.5rem' }}>Share this credentials securely with the instructor.</small>
                     </div>
 
                     <button type="submit" className="btn btn-primary" disabled={loading}>

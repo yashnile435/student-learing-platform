@@ -216,16 +216,22 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1rem;
-        background-color: #fff;
-        border-bottom: 1px solid #e5e7eb;
+        padding: 1rem 1.5rem;
+        /* Matched to nav-link padding */
+        background-color: transparent;
+        /* Was #fff */
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        /* Matched to nav-link border */
         font-weight: 600;
         cursor: pointer;
         transition: background-color 0.2s;
+        color: white;
+        /* Ensure text is visible on dark background */
     }
 
     .user-profile:hover {
-        background-color: #f9fafb;
+        background-color: rgba(255, 255, 255, 0.05);
+        color: var(--secondary-color);
     }
 
     .user-name {
@@ -242,13 +248,14 @@
         visibility: hidden;
         transform: none;
         box-shadow: none;
-        background-color: #f9fafb;
+        background-color: transparent;
+        /* Changed from #f9fafb to transparent for seamless look */
         display: flex;
         flex-direction: column;
         align-items: stretch;
         padding: 0;
         border-radius: 0;
-        transition: max-height 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+        transition: max-height 0.3s ease, opacity 0.3s ease;
     }
 
     .dropdown-menu.show {
@@ -263,20 +270,24 @@
 
     .dropdown-item {
         text-align: left;
-        padding: 0.875rem 1.5rem;
+        padding: 0.875rem 1.5rem 0.875rem 2.5rem;
+        /* Indented text */
         width: 100%;
         display: block;
         background-color: transparent;
-        border-bottom: 1px solid #e5e7eb;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         font-size: 0.95rem;
+        color: #e2e8f0;
+        /* Light gray text */
     }
 
     .dropdown-item:last-child {
-        border-bottom: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .dropdown-item:hover {
-        background-color: #fff;
+        background-color: rgba(255, 255, 255, 0.05);
+        color: var(--secondary-color);
     }
 
     .profile-dropdown-container:hover .dropdown-menu {

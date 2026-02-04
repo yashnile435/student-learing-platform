@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { FaGoogle } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import PasswordInput from '../components/PasswordInput';
 import '../index.css';
 
 const Signup = () => {
@@ -104,28 +105,20 @@ const Signup = () => {
                             placeholder="10-digit mobile number"
                         />
                     </div>
-                    <div className="form-group">
-                        <label className="form-label">Password</label>
-                        <input
-                            type="password"
-                            className="form-input"
-                            required
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="••••••••"
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label className="form-label">Confirm Password</label>
-                        <input
-                            type="password"
-                            className="form-input"
-                            required
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            placeholder="••••••••"
-                        />
-                    </div>
+                    <PasswordInput
+                        label="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        placeholder="••••••••"
+                    />
+                    <PasswordInput
+                        label="Confirm Password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                        placeholder="••••••••"
+                    />
                     <button disabled={loading} type="submit" className="btn btn-primary w-full" style={{ marginBottom: '1rem' }}>
                         {loading ? 'Creating Account...' : 'Sign Up'}
                     </button>

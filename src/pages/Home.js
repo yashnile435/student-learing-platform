@@ -1,10 +1,20 @@
-
-import { useNavigate } from 'react-router-dom';
-import { FaGraduationCap, FaChalkboardTeacher, FaRocket, FaArrowRight } from 'react-icons/fa';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
+import { FaGraduationCap, FaChalkboardTeacher, FaRocket, FaArrowRight, FaWhatsapp, FaInstagram, FaYoutube } from 'react-icons/fa';
 import '../index.css';
 
 const Home = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.scrollTo === 'contact') {
+            const contactSection = document.getElementById('contact');
+            if (contactSection) {
+                contactSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    }, [location]);
 
     return (
         <div style={{ background: 'var(--bg-body)', minHeight: '100vh', overflow: 'hidden' }}>
@@ -182,24 +192,61 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* Footer - Minimal */}
-            <footer id="footer" style={{ background: 'white', padding: 'clamp(2rem, 5vw, 4rem) 1rem 2rem', borderTop: '1px solid var(--border-color)' }}>
-                <div className="container" style={{ textAlign: 'center' }}>
-                    <h2 style={{ color: 'var(--primary-color)', marginBottom: '1.5rem' }}>YaTi Learning</h2>
+            {/* Contact Section */}
+            <footer id="contact" style={{ background: 'white', padding: '4rem 1rem 2rem', borderTop: '1px solid var(--border-color)' }}>
+                <div className="container">
                     <div style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        gap: 'clamp(1rem, 3vw, 2rem)',
-                        marginBottom: '2rem',
-                        color: 'var(--text-muted)',
-                        flexWrap: 'wrap'
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                        gap: '3rem',
+                        marginBottom: '3rem'
                     }}>
-                        <span style={{ cursor: 'pointer' }}>About Us</span>
-                        <span style={{ cursor: 'pointer' }}>Careers</span>
-                        <span style={{ cursor: 'pointer' }}>Blog</span>
-                        <span style={{ cursor: 'pointer' }}>Contact</span>
+                        {/* Brand Column */}
+                        <div style={{ textAlign: 'left' }}>
+                            <h2 style={{ color: 'var(--primary-color)', marginBottom: '1rem' }}>YaTi Learning</h2>
+                            <p style={{ color: 'var(--text-muted)', lineHeight: '1.6', maxWidth: '300px' }}>
+                                Empowering students with world-class education and practical skills. Join our community and shaope your future today.
+                            </p>
+                        </div>
+
+                        {/* Social Links Column */}
+                        <div style={{ textAlign: 'left' }}>
+                            <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-main)' }}>Connect With Us</h3>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+                                <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" style={{
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    width: '50px', height: '50px', borderRadius: '50%',
+                                    background: '#dcfce7', color: '#16a34a', fontSize: '1.5rem'
+                                }}>
+                                    <FaWhatsapp />
+                                </a>
+                                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" style={{
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    width: '50px', height: '50px', borderRadius: '50%',
+                                    background: '#fce7f3', color: '#db2777', fontSize: '1.5rem'
+                                }}>
+                                    <FaInstagram />
+                                </a>
+                                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" style={{
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    width: '50px', height: '50px', borderRadius: '50%',
+                                    background: '#fee2e2', color: '#dc2626', fontSize: '1.5rem'
+                                }}>
+                                    <FaYoutube />
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>&copy; {new Date().getFullYear()} YaTi Learning. Built with ❤️.</p>
+
+                    <div style={{
+                        borderTop: '1px solid var(--border-color)',
+                        paddingTop: '2rem',
+                        textAlign: 'center',
+                        color: 'var(--text-muted)',
+                        fontSize: '0.9rem'
+                    }}>
+                        <p>&copy; {new Date().getFullYear()} YaTi Learning. All rights reserved.</p>
+                    </div>
                 </div>
             </footer>
         </div>

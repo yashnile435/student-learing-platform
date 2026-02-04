@@ -7,10 +7,8 @@ const PasswordInput = ({
     label,
     value,
     onChange,
-    placeholder = "",
     className = "form-input",
-    required = true,
-    name
+    ...rest
 }) => {
     const [showPassword, setShowPassword] = useState(false);
 
@@ -21,11 +19,9 @@ const PasswordInput = ({
                 <input
                     type={showPassword ? "text" : "password"}
                     className={className}
-                    required={required}
                     value={value}
                     onChange={onChange}
-                    placeholder={placeholder}
-                    name={name}
+                    {...rest}
                 />
                 <button
                     type="button"
