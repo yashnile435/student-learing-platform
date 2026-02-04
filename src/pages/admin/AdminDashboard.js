@@ -4,7 +4,7 @@ import { FaUserGraduate, FaUserShield, FaBook, FaChalkboardTeacher, FaPlus, FaEd
 import { Link } from 'react-router-dom';
 import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
-import { getPendingPayments, approveManualPayment, rejectManualPayment, getAllPayments } from '../../services/paymentService';
+import { getPendingPayments, getAllPayments } from '../../services/paymentService';
 import '../../index.css';
 
 const AdminDashboard = () => {
@@ -65,7 +65,7 @@ const AdminDashboard = () => {
                             acc.totalRevenue += Number(curr.amount) || 0;
                         } else if (curr.status === 'rejected') {
                             acc.rejected++;
-                        } else if (curr.status === 'pending') {
+                        } else if (['pending', 'submitted', 'verified'].includes(curr.status)) {
                             acc.pending++;
                         }
                         return acc;
@@ -83,45 +83,7 @@ const AdminDashboard = () => {
         fetchData();
     }, [user, userRole]);
 
-    const handleApprovePayment = async (payment) => {
-        if (!window.confirm(`Approve access for ${payment.userName}?`)) return;
 
-        try {
-            await approveManualPayment(payment.id, payment.userId, payment.courseId);
-            setPendingPayments(prev => prev.filter(p => p.id !== payment.id));
-            alert(`Approved access for ${payment.userName}`);
-
-            // Update analytics locally
-            setPaymentAnalytics(prev => ({
-                ...prev,
-                approved: prev.approved + 1,
-                pending: prev.pending - 1,
-                totalRevenue: prev.totalRevenue + Number(payment.amount)
-            }));
-        } catch (error) {
-            console.error("Approval failed:", error);
-            alert("Failed to approve payment. check console.");
-        }
-    };
-
-    const handleRejectPayment = async (payment) => {
-        if (!window.confirm(`Reject payment from ${payment.userName}?`)) return;
-
-        try {
-            await rejectManualPayment(payment.id);
-            setPendingPayments(prev => prev.filter(p => p.id !== payment.id));
-            alert(`Rejected payment from ${payment.userName}`);
-            // Update analytics locally
-            setPaymentAnalytics(prev => ({
-                ...prev,
-                rejected: prev.rejected + 1,
-                pending: prev.pending - 1
-            }));
-        } catch (error) {
-            console.error("Rejection failed:", error);
-            alert("Failed to reject payment.");
-        }
-    };
 
     if (loading) return <div><p>Loading dashboard...</p></div>;
 
@@ -236,54 +198,18 @@ const AdminDashboard = () => {
                 </div>
             </div>
 
-            {/* Pending Payments Section */}
+            {/* Pending Payments Alert */}
             {pendingPayments.length > 0 && (
-                <div style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-                    <h2 className="mb-3" style={{ color: '#d97706' }}>Pending Payments ({pendingPayments.length})</h2>
-                    <div className="payment-list" style={{ display: 'grid', gap: '1rem' }}>
-                        {pendingPayments.map(payment => (
-                            <div key={payment.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
-                                <div>
-                                    <h4 style={{ margin: '0 0 0.5rem 0' }}>{payment.courseName}</h4>
-                                    <p style={{ margin: 0, fontSize: '0.9rem', color: '#666' }}>
-                                        Student: <strong>{payment.userName}</strong>
-                                    </p>
-                                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#999' }}>
-                                        Date: {payment.timestamp ? new Date(payment.timestamp.seconds * 1000).toLocaleDateString() : 'N/A'}
-                                    </p>
-                                    {payment.screenshotUrl && (
-                                        <button
-                                            onClick={() => setViewScreenshot(payment.screenshotUrl)}
-                                            style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', padding: 0, marginTop: '0.5rem', textDecoration: 'underline' }}
-                                        >
-                                            View Screenshot
-                                        </button>
-                                    )}
-                                </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <p style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#059669', marginBottom: '0.5rem' }}>
-                                        ₹{payment.amount}
-                                    </p>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        <button
-                                            className="btn btn-primary"
-                                            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem' }}
-                                            onClick={() => handleApprovePayment(payment)}
-                                        >
-                                            <FaCheck /> Approve
-                                        </button>
-                                        <button
-                                            className="btn"
-                                            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: '#dc2626', color: 'white' }}
-                                            onClick={() => handleRejectPayment(payment)}
-                                        >
-                                            <FaTimes /> Reject
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                <div style={{ marginTop: '2rem', marginBottom: '2rem', background: '#fff7ed', border: '1px solid #ffedd5', padding: '1.5rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                        <h2 style={{ margin: 0, color: '#c2410c', fontSize: '1.25rem' }}>Pending Payments</h2>
+                        <p style={{ margin: '0.5rem 0 0', color: '#9a3412' }}>
+                            You have <strong>{pendingPayments.length}</strong> payment requests waiting for verification.
+                        </p>
                     </div>
+                    <Link to="/admin/received-payments" className="btn btn-primary" style={{ textDecoration: 'none', background: '#ea580c', borderColor: '#ea580c' }}>
+                        Process Payments &rarr;
+                    </Link>
                 </div>
             )}
 

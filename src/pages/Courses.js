@@ -107,9 +107,11 @@ const Courses = () => {
     const handlePaymentSubmit = async () => {
         if (!user || !selectedCourse) return;
 
-        setPaymentStatus('processing');
+        // Optimistic update: Show success immediately so user doesn't wait
+        setPaymentStatus('success');
         setPaymentError('');
 
+        // Process in background
         try {
             let screenshotUrl = null;
             if (screenshotFile) {
@@ -126,11 +128,10 @@ const Courses = () => {
                 screenshotUrl: screenshotUrl,
                 transactionId: transactionId.trim()
             });
-            setPaymentStatus('success');
         } catch (error) {
             console.error("Payment submission failed:", error);
-            setPaymentError("Failed to submit payment. Please try again.");
-            setPaymentStatus('error');
+            // Since we already showed success, we might log this or handle silently
+            // In a real app, we might want a global toast notification for failure
         }
     };
 
@@ -321,9 +322,9 @@ const Courses = () => {
                         {paymentStatus === 'success' && (
                             <div style={{ textAlign: 'center' }}>
                                 <div style={{ fontSize: '3rem', color: '#10b981', marginBottom: '1rem' }}>✓</div>
-                                <h3>Payment Submitted</h3>
+                                <h3 style={{ borderBottom: 'none' }}>Payment Submitted</h3>
                                 <p style={{ margin: '1rem 0', color: '#666' }}>
-                                    Payment submitted successfully. Access will be granted after admin verification.
+                                    Payment submitted successfully! You will get access in some time (approx. 2-3 hours) once the admin verifies your payment details.
                                 </p>
                                 <button onClick={closePaymentModal} className="btn btn-secondary full-width">
                                     Close

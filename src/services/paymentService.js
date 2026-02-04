@@ -121,7 +121,7 @@ export const submitManualPayment = async (paymentData) => {
     try {
         const data = {
             ...paymentData,
-            status: 'pending',
+            status: 'submitted',
             timestamp: serverTimestamp(),
             createdAt: serverTimestamp(), // detailed timestamp
             type: 'manual_qr'
@@ -141,30 +141,47 @@ export const getPendingPayments = async () => {
     try {
         const q = query(
             collection(db, 'paymentRequests'),
-            where('status', '==', 'pending'),
             orderBy('timestamp', 'desc')
         );
         const snapshot = await getDocs(q);
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
         console.error("Error fetching pending payments:", error);
+        throw error; // Propagate error for UI handling
+    }
+};
+
+/**
+ * 1. Verify Payment (Does NOT grant access)
+ * @param {string} requestId 
+ */
+export const verifyManualPayment = async (requestId) => {
+    try {
+        const requestRef = doc(db, 'paymentRequests', requestId);
+        await updateDoc(requestRef, {
+            status: 'verified',
+            verifiedAt: serverTimestamp()
+        });
+        return true;
+    } catch (error) {
+        console.error("Error verifying payment:", error);
         throw error;
     }
 };
 
 /**
- * Approves a manual payment request.
+ * 2. Grant Access (Final Step)
  * @param {string} requestId 
  * @param {string} userId 
  * @param {string} courseId 
  */
-export const approveManualPayment = async (requestId, userId, courseId) => {
+export const grantAccessManualPayment = async (requestId, userId, courseId) => {
     try {
         // 1. Update request status
         const requestRef = doc(db, 'paymentRequests', requestId);
         await updateDoc(requestRef, {
-            status: 'approved',
-            approvedAt: serverTimestamp()
+            status: 'access_granted',
+            grantedAt: serverTimestamp()
         });
 
         // 2. Grant access to course
@@ -175,7 +192,7 @@ export const approveManualPayment = async (requestId, userId, courseId) => {
 
         return true;
     } catch (error) {
-        console.error("Error approving payment:", error);
+        console.error("Error granting access:", error);
         throw error;
     }
 };
