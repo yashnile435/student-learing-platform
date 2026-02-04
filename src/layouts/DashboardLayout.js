@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { FaHome, FaBook, FaUsers, FaChartBar, FaPlus, FaSignOutAlt, FaUser, FaChalkboardTeacher, FaBars, FaTimes } from 'react-icons/fa';
+import { FaHome, FaBook, FaUsers, FaChartBar, FaPlus, FaSignOutAlt, FaUser, FaChalkboardTeacher, FaBars, FaTimes, FaEnvelope } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import '../index.css';
 
@@ -16,6 +16,11 @@ const DashboardLayout = () => {
         } catch (error) {
             console.error("Logout failed", error);
         }
+    };
+
+    const handleContact = () => {
+        navigate('/', { state: { scrollTo: 'contact' } });
+        setMobileMenuOpen(false);
     };
 
     const closeMobileMenu = () => {
@@ -90,6 +95,10 @@ const DashboardLayout = () => {
 
                     {/* Bottom Links */}
                     <div className="nav-item-bottom">
+                        <button onClick={handleContact} className="nav-item" style={{ width: '100%', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                            <FaEnvelope />
+                            <span>Contact</span>
+                        </button>
                         <button onClick={handleLogout} className="nav-item" style={{ width: '100%', background: 'transparent', border: 'none', cursor: 'pointer' }}>
                             <FaSignOutAlt />
                             <span>Logout</span>

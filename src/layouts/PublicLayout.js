@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { FaBars, FaTimes, FaUser } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import '../index.css';
@@ -8,6 +8,7 @@ const PublicLayout = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { user } = useAuth(); // Get user from AuthContext
     const location = useLocation();
+    const navigate = useNavigate();
 
     return (
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -39,7 +40,13 @@ const PublicLayout = () => {
                     </Link>
                     <Link to="/courses" style={{ fontWeight: 500 }}>Browse Courses</Link>
                     <span
-                        onClick={() => document.getElementById('footer')?.scrollIntoView({ behavior: 'smooth' })}
+                        onClick={() => {
+                            if (location.pathname === '/') {
+                                document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                            } else {
+                                navigate('/', { state: { scrollTo: 'contact' } });
+                            }
+                        }}
                         style={{ fontWeight: 500, cursor: 'pointer' }}
                     >
                         Contact
@@ -109,7 +116,11 @@ const PublicLayout = () => {
                             <Link to="/courses" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '1.1rem', fontWeight: 500, color: 'var(--primary-color)', padding: '0.5rem 0', borderBottom: '2px solid var(--primary-color)', width: 'fit-content' }}>Courses</Link>
                             <div onClick={() => {
                                 setMobileMenuOpen(false);
-                                document.getElementById('footer')?.scrollIntoView({ behavior: 'smooth' });
+                                if (location.pathname === '/') {
+                                    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                                } else {
+                                    navigate('/', { state: { scrollTo: 'contact' } });
+                                }
                             }} style={{ fontSize: '1.1rem', fontWeight: 500, color: 'var(--text-main)', padding: '0.5rem 0', cursor: 'pointer' }}>Contact</div>
                         </div>
 
