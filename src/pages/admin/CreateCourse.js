@@ -1,8 +1,10 @@
+import { useNavigate } from 'react-router-dom';
 import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { db } from '../../firebase';
 
 const CreateCourse = () => {
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
 
@@ -72,8 +74,13 @@ const CreateCourse = () => {
                 createdAt: new Date().toISOString()
             });
 
-            setMessage('Course created successfully!');
+            setMessage('Course created successfully! Redirecting...');
             resetForm();
+
+            setTimeout(() => {
+                navigate('/admin/edit');
+            }, 1000);
+
         } catch (error) {
             console.error("Error creating course:", error);
             setMessage('Error creating course.');

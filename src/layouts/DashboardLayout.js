@@ -31,7 +31,7 @@ const DashboardLayout = () => {
         if (userRole === 'admin') {
             return [
                 { path: '/admin', icon: <FaHome />, label: 'Dashboard', end: true },
-                { path: '/admin/manage', icon: <FaBook />, label: 'Manage Courses' },
+                { path: '/admin/edit', icon: <FaBook />, label: 'Manage Courses' },
                 { path: '/admin/create', icon: <FaPlus />, label: 'Create Course' },
                 { path: '/admin/manage-teachers', icon: <FaUsers />, label: 'Manage Teachers' },
                 { path: '/admin/create-teacher', icon: <FaChalkboardTeacher />, label: 'Create Teacher' },

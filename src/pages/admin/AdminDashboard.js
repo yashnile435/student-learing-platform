@@ -4,7 +4,7 @@ import { FaUserGraduate, FaUserShield, FaBook, FaChalkboardTeacher, FaPlus, FaEd
 import { Link } from 'react-router-dom';
 import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
-import { getPendingPayments, getAllPayments } from '../../services/paymentService';
+import { getAllPayments } from '../../services/paymentService';
 import '../../index.css';
 
 const AdminDashboard = () => {
@@ -52,22 +52,30 @@ const AdminDashboard = () => {
                         teacherCourses: 0
                     });
 
-                    // Fetch Pending Payments
-                    const payments = await getPendingPayments();
-                    setPendingPayments(payments);
-
                     // Fetch All Payments for Analytics
                     const allPayments = await getAllPayments();
+
+                    // Filter pending specifically for 'submitted' status
+                    const pendingRequests = allPayments.filter(p => p.status === 'submitted');
+                    setPendingPayments(pendingRequests);
+
                     const analytics = allPayments.reduce((acc, curr) => {
                         acc.totalPayments++;
-                        if (curr.status === 'approved') {
+
+                        // Calculate Revenue and Approved Count
+                        if (['access_granted', 'verified', 'approved'].includes(curr.status)) {
                             acc.approved++;
                             acc.totalRevenue += Number(curr.amount) || 0;
-                        } else if (curr.status === 'rejected') {
+                        }
+
+                        else if (curr.status === 'rejected') {
                             acc.rejected++;
-                        } else if (['pending', 'submitted', 'verified'].includes(curr.status)) {
+                        }
+
+                        else if (curr.status === 'submitted') {
                             acc.pending++;
                         }
+
                         return acc;
                     }, { totalRevenue: 0, totalPayments: 0, approved: 0, rejected: 0, pending: 0 });
 

@@ -1,5 +1,5 @@
 
-import { collection, doc, getDoc, getDocs, updateDoc, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, updateDoc, query, where, deleteDoc, writeBatch } from 'firebase/firestore';
 import { useEffect, useState, useCallback } from 'react';
 import { FaArrowLeft, FaEdit, FaImage, FaVideo } from 'react-icons/fa';
 import { db } from '../../firebase';
@@ -19,6 +19,28 @@ const EditCourse = () => {
     const [editCourseId, setEditCourseId] = useState('');
 
 
+
+    const [teachersList, setTeachersList] = useState([]);
+
+    // Fetch teachers for Admin dropdown
+    useEffect(() => {
+        const fetchTeachers = async () => {
+            if (userRole !== 'admin') return;
+            try {
+                const q = query(collection(db, 'users'), where('role', '==', 'teacher'));
+                const snapshot = await getDocs(q);
+                const teachers = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    name: doc.data().name || doc.data().email, // Fallback to email if name missing
+                    email: doc.data().email
+                }));
+                setTeachersList(teachers);
+            } catch (error) {
+                console.error("Error fetching teachers:", error);
+            }
+        };
+        fetchTeachers();
+    }, [userRole]);
 
     const [courseTitle, setCourseTitle] = useState('');
     const [courseDesc, setCourseDesc] = useState('');
@@ -139,7 +161,16 @@ const EditCourse = () => {
 
             // Only Admin can re-assign teachers
             if (userRole === 'admin') {
+                if (!courseTeacherId) {
+                    throw new Error("Please select a teacher.");
+                }
                 updateData.teacherId = courseTeacherId.trim();
+
+                // Optional: Save teacher name for easier display later
+                const selectedTeacher = teachersList.find(t => t.id === courseTeacherId);
+                if (selectedTeacher) {
+                    updateData.teacherName = selectedTeacher.name;
+                }
             }
 
             await updateDoc(docRef, updateData);
@@ -155,11 +186,41 @@ const EditCourse = () => {
         }
     };
 
+    const handleDeleteCourse = async (id, e) => {
+        e.stopPropagation(); // Prevent triggering other clicks if any
+        if (!window.confirm("Are you sure you want to delete this course? This action cannot be undone.")) return;
+
+        setLoading(true);
+        try {
+            // 1. Delete all lessons sub-collection documents
+            const lessonsRef = collection(db, 'courses', id, 'lessons');
+            const lessonsSnap = await getDocs(lessonsRef);
+
+            const batch = writeBatch(db);
+            lessonsSnap.forEach((doc) => {
+                batch.delete(doc.ref);
+            });
+            await batch.commit();
+
+            // 2. Delete the course document
+            await deleteDoc(doc(db, 'courses', id));
+
+            setMessage('Course deleted successfully.');
+            // Refresh
+            fetchCourses();
+        } catch (error) {
+            console.error("Error deleting course:", error);
+            setMessage("Error deleting course: " + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // --- VIEW 1: PREVIEW LIST (My Courses) ---
     if (!editCourseId) {
         return (
             <div>
-                <h1 className="mb-4">{userRole === 'teacher' ? 'My Assigned Courses' : 'All Courses (Edit)'}</h1>
+                <h1 className="mb-4">{userRole === 'teacher' ? 'My Assigned Courses' : 'Manage Courses'}</h1>
 
                 {loading && <p>Loading courses...</p>}
 
@@ -217,13 +278,24 @@ const EditCourse = () => {
                                         <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                                             {course.totalLessons || 0} Lessons
                                         </span>
-                                        <button
-                                            onClick={() => handleCourseSelectForEdit(course.id)}
-                                            className="btn btn-primary"
-                                            style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                                        >
-                                            <FaEdit /> Edit
-                                        </button>
+                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                            <button
+                                                onClick={() => handleCourseSelectForEdit(course.id)}
+                                                className="btn btn-primary"
+                                                style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                                            >
+                                                <FaEdit /> Edit
+                                            </button>
+                                            {userRole === 'admin' && (
+                                                <button
+                                                    onClick={(e) => handleDeleteCourse(course.id, e)}
+                                                    className="btn btn-danger"
+                                                    style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5' }}
+                                                >
+                                                    Delete
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -266,13 +338,21 @@ const EditCourse = () => {
 
                 {userRole === 'admin' && (
                     <div className="form-group">
-                        <label className="form-label">Assigned Teacher UID</label>
-                        <input
+                        <label className="form-label">Assign Teacher</label>
+                        <select
                             className="form-input"
                             value={courseTeacherId}
-                            onChange={e => setCourseTeacherId(e.target.value)}
-                            placeholder="Paste Teacher User ID here"
-                        />
+                            onChange={(e) => setCourseTeacherId(e.target.value)}
+                            required
+                        >
+                            <option value="">-- Select a Teacher --</option>
+                            {teachersList.map((t) => (
+                                <option key={t.id} value={t.id}>
+                                    {t.name} ({t.email})
+                                </option>
+                            ))}
+                        </select>
+                        {teachersList.length === 0 && <span style={{ fontSize: '0.8rem', color: 'red' }}>No teachers found. Please create a teacher account first.</span>}
                     </div>
                 )}
 

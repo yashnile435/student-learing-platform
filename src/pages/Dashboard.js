@@ -214,7 +214,6 @@ const Dashboard = () => {
                                     <th style={{ padding: '1rem', textAlign: 'left' }}>Course</th>
                                     <th style={{ padding: '1rem', textAlign: 'left' }}>Amount</th>
                                     <th style={{ padding: '1rem', textAlign: 'left' }}>Date</th>
-                                    <th style={{ padding: '1rem', textAlign: 'center' }}>Screenshot</th>
                                     <th style={{ padding: '1rem', textAlign: 'center' }}>Status</th>
                                 </tr>
                             </thead>
@@ -227,17 +226,8 @@ const Dashboard = () => {
                                             {payment.timestamp ? new Date(payment.timestamp.seconds * 1000).toLocaleDateString() : 'N/A'}
                                         </td>
                                         <td style={{ padding: '1rem', textAlign: 'center' }}>
-                                            {payment.screenshotUrl ? (
-                                                <a href={payment.screenshotUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-color)', textDecoration: 'underline' }}>
-                                                    View
-                                                </a>
-                                            ) : (
-                                                <span style={{ color: '#aaa' }}>-</span>
-                                            )}
-                                        </td>
-                                        <td style={{ padding: '1rem', textAlign: 'center' }}>
                                             <span className={`badge ${payment.status === 'approved' ? 'badge-paid' :
-                                                    payment.status === 'rejected' ? 'badge-rejected' : 'badge-free' /* using free badge for pending style */
+                                                payment.status === 'rejected' ? 'badge-rejected' : 'badge-free' /* using free badge for pending style */
                                                 }`} style={{
                                                     background: payment.status === 'pending' ? '#fff7ed' : undefined,
                                                     color: payment.status === 'pending' ? '#c2410c' : undefined

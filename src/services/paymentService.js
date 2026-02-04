@@ -258,11 +258,17 @@ export const getUserPayments = async (userId) => {
     try {
         const q = query(
             collection(db, 'transactions'),
-            where('userId', '==', userId),
-            orderBy('createdAt', 'desc')
+            where('userId', '==', userId)
         );
         const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const payments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        // Client-side sort to avoid index requirement
+        return payments.sort((a, b) => {
+            const timeA = a.createdAt?.seconds || 0;
+            const timeB = b.createdAt?.seconds || 0;
+            return timeB - timeA;
+        });
     } catch (error) {
         console.error("Error fetching user transactions:", error);
         throw error;
