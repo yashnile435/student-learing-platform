@@ -39,18 +39,20 @@ const PublicLayout = () => {
                         Home
                     </Link>
                     <Link to="/courses" style={{ fontWeight: 500 }}>Browse Courses</Link>
-                    <span
-                        onClick={() => {
-                            if (location.pathname === '/') {
-                                document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-                            } else {
-                                navigate('/', { state: { scrollTo: 'contact' } });
-                            }
-                        }}
-                        style={{ fontWeight: 500, cursor: 'pointer' }}
-                    >
-                        Contact
-                    </span>
+                    {!user && (
+                        <span
+                            onClick={() => {
+                                if (location.pathname === '/') {
+                                    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                                } else {
+                                    navigate('/', { state: { scrollTo: 'contact' } });
+                                }
+                            }}
+                            style={{ fontWeight: 500, cursor: 'pointer' }}
+                        >
+                            Contact
+                        </span>
+                    )}
                     {user ? (
                         <Link to="/dashboard" className="btn btn-primary">Dashboard</Link>
                     ) : (
@@ -115,14 +117,16 @@ const PublicLayout = () => {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', flex: 1 }}>
                             <Link to="/" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '1.1rem', fontWeight: 500, color: 'var(--text-main)', padding: '0.5rem 0' }}>Home</Link>
                             <Link to="/courses" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '1.1rem', fontWeight: 500, color: 'var(--primary-color)', padding: '0.5rem 0', borderBottom: '2px solid var(--primary-color)', width: 'fit-content' }}>Courses</Link>
-                            <div onClick={() => {
-                                setMobileMenuOpen(false);
-                                if (location.pathname === '/') {
-                                    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-                                } else {
-                                    navigate('/', { state: { scrollTo: 'contact' } });
-                                }
-                            }} style={{ fontSize: '1.1rem', fontWeight: 500, color: 'var(--text-main)', padding: '0.5rem 0', cursor: 'pointer' }}>Contact</div>
+                            {!user && (
+                                <div onClick={() => {
+                                    setMobileMenuOpen(false);
+                                    if (location.pathname === '/') {
+                                        document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                                    } else {
+                                        navigate('/', { state: { scrollTo: 'contact' } });
+                                    }
+                                }} style={{ fontSize: '1.1rem', fontWeight: 500, color: 'var(--text-main)', padding: '0.5rem 0', cursor: 'pointer' }}>Contact</div>
+                            )}
                         </div>
 
                         {/* Action Buttons */}

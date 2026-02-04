@@ -75,22 +75,24 @@ const Navbar = () => {
                         <li className="nav-item">
                             <Link to="/courses" className="nav-link" onClick={toggleMenu}>Browse Courses</Link>
                         </li>
-                        <li className="nav-item">
-                            <span
-                                className="nav-link"
-                                onClick={() => {
-                                    toggleMenu();
-                                    if (location.pathname === '/') {
-                                        document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-                                    } else {
-                                        navigate('/', { state: { scrollTo: 'contact' } });
-                                    }
-                                }}
-                                style={{ cursor: 'pointer' }}
-                            >
-                                Contact
-                            </span>
-                        </li>
+                        {!user && (
+                            <li className="nav-item">
+                                <span
+                                    className="nav-link"
+                                    onClick={() => {
+                                        toggleMenu();
+                                        if (location.pathname === '/') {
+                                            document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                                        } else {
+                                            navigate('/', { state: { scrollTo: 'contact' } });
+                                        }
+                                    }}
+                                    style={{ cursor: 'pointer' }}
+                                >
+                                    Contact
+                                </span>
+                            </li>
+                        )}
 
                         {user ? (
                             <li className={`nav-item profile-dropdown-container ${isProfileOpen ? 'active' : ''}`}>

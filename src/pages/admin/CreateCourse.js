@@ -1,7 +1,6 @@
 import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { db } from '../../firebase';
-import '../../styles/Admin.css';
 
 const CreateCourse = () => {
     const [loading, setLoading] = useState(false);

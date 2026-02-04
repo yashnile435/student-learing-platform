@@ -27,6 +27,7 @@ import AddLesson from './pages/admin/AddLesson';
 import Reports from './pages/admin/Reports';
 import CreateTeacher from './pages/admin/CreateTeacher';
 import ManageTeachers from './pages/admin/ManageTeachers';
+import ReceivedPayments from './pages/admin/ReceivedPayments';
 
 function App() {
   return (
@@ -69,6 +70,7 @@ function App() {
             <Route path="create-teacher" element={<PrivateRoute roleRequired="admin"><CreateTeacher /></PrivateRoute>} />
             <Route path="manage-teachers" element={<PrivateRoute roleRequired="admin"><ManageTeachers /></PrivateRoute>} />
             <Route path="reports" element={<PrivateRoute roleRequired="admin"><Reports /></PrivateRoute>} />
+            <Route path="received-payments" element={<PrivateRoute roleRequired="admin"><ReceivedPayments /></PrivateRoute>} />
 
             {/* Shared (Admin + Teacher) */}
             <Route path="edit" element={<EditCourse />} />

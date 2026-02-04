@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
 import ProgressService from '../services/progressService';
+import { getUserPayments } from '../services/paymentService';
 import '../index.css';
 
 // Lazy load heavy VideoPlayer
@@ -22,6 +23,7 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true);
     const [selectedVideo, setSelectedVideo] = useState(null);
     const [activeCourseProgress, setActiveCourseProgress] = useState({ completedLessonIds: [] });
+    const [paymentHistory, setPaymentHistory] = useState([]);
 
     // Fetch Data Logic
     useEffect(() => {
@@ -62,6 +64,12 @@ const Dashboard = () => {
                         });
                     } else {
                         setCourses([]);
+                    }
+
+                    // 3. Fetch Payment History
+                    if (user) {
+                        const payments = await getUserPayments(user.uid);
+                        setPaymentHistory(payments);
                     }
                 }
             } catch (err) {
@@ -173,6 +181,7 @@ const Dashboard = () => {
                                     src={course.thumbnail || 'https://via.placeholder.com/300x200?text=Course'}
                                     alt={course.title}
                                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    title={course.title}
                                 />
                             </div>
                             <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', height: 'calc(100% - 180px)' }}>
@@ -189,6 +198,60 @@ const Dashboard = () => {
                     ))}
                 </div>
             )}
+
+            {/* Payment History Section */}
+            <div style={{ marginTop: '4rem' }}>
+                <h2 className="mb-3">Payment History</h2>
+                {paymentHistory.length === 0 ? (
+                    <div className="card p-3 text-center text-muted">
+                        No payments found.
+                    </div>
+                ) : (
+                    <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+                            <thead>
+                                <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                                    <th style={{ padding: '1rem', textAlign: 'left' }}>Course</th>
+                                    <th style={{ padding: '1rem', textAlign: 'left' }}>Amount</th>
+                                    <th style={{ padding: '1rem', textAlign: 'left' }}>Date</th>
+                                    <th style={{ padding: '1rem', textAlign: 'center' }}>Screenshot</th>
+                                    <th style={{ padding: '1rem', textAlign: 'center' }}>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {paymentHistory.map(payment => (
+                                    <tr key={payment.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                        <td style={{ padding: '1rem' }}>{payment.courseName}</td>
+                                        <td style={{ padding: '1rem' }}>₹{payment.amount}</td>
+                                        <td style={{ padding: '1rem' }}>
+                                            {payment.timestamp ? new Date(payment.timestamp.seconds * 1000).toLocaleDateString() : 'N/A'}
+                                        </td>
+                                        <td style={{ padding: '1rem', textAlign: 'center' }}>
+                                            {payment.screenshotUrl ? (
+                                                <a href={payment.screenshotUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-color)', textDecoration: 'underline' }}>
+                                                    View
+                                                </a>
+                                            ) : (
+                                                <span style={{ color: '#aaa' }}>-</span>
+                                            )}
+                                        </td>
+                                        <td style={{ padding: '1rem', textAlign: 'center' }}>
+                                            <span className={`badge ${payment.status === 'approved' ? 'badge-paid' :
+                                                    payment.status === 'rejected' ? 'badge-rejected' : 'badge-free' /* using free badge for pending style */
+                                                }`} style={{
+                                                    background: payment.status === 'pending' ? '#fff7ed' : undefined,
+                                                    color: payment.status === 'pending' ? '#c2410c' : undefined
+                                                }}>
+                                                {payment.status.toUpperCase()}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

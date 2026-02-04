@@ -1,6 +1,7 @@
 
 import { addDoc, collection, doc, updateDoc, arrayUnion, serverTimestamp, getDocs, query, where, orderBy } from 'firebase/firestore';
-import { db } from '../firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../firebase';
 
 /**
  * Creates a pending purchase record in Firestore.
@@ -97,8 +98,24 @@ export const enrollFreeCourse = async (userId, courseId) => {
 };
 
 /**
+ * Uploads a payment screenshot to Firebase Storage.
+ * @param {File} file 
+ * @param {string} userId 
+ */
+export const uploadPaymentScreenshot = async (file, userId) => {
+    try {
+        const storageRef = ref(storage, `payment_screenshots/${userId}/${Date.now()}_${file.name}`);
+        const snapshot = await uploadBytes(storageRef, file);
+        return await getDownloadURL(snapshot.ref);
+    } catch (error) {
+        console.error("Error uploading screenshot:", error);
+        throw error;
+    }
+};
+
+/**
  * Submits a manual payment request after QR code payment.
- * @param {object} paymentData - { userId, courseId, courseName, userName, amount }
+ * @param {object} paymentData - { userId, courseId, courseName, userName, amount, screenshotUrl }
  */
 export const submitManualPayment = async (paymentData) => {
     try {
@@ -159,6 +176,56 @@ export const approveManualPayment = async (requestId, userId, courseId) => {
         return true;
     } catch (error) {
         console.error("Error approving payment:", error);
+        throw error;
+    }
+};
+
+/**
+ * Rejects a manual payment request.
+ * @param {string} requestId 
+ */
+export const rejectManualPayment = async (requestId) => {
+    try {
+        const requestRef = doc(db, 'paymentRequests', requestId);
+        await updateDoc(requestRef, {
+            status: 'rejected',
+            rejectedAt: serverTimestamp()
+        });
+        return true;
+    } catch (error) {
+        console.error("Error rejecting payment:", error);
+        throw error;
+    }
+};
+
+/**
+ * Fetches payment history for a specific user.
+ * @param {string} userId 
+ */
+export const getUserPayments = async (userId) => {
+    try {
+        const q = query(
+            collection(db, 'paymentRequests'),
+            where('userId', '==', userId),
+            orderBy('timestamp', 'desc')
+        );
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+        console.error("Error fetching user payments:", error);
+        throw error;
+    }
+};
+
+/**
+ * Fetches all payments for analytics (admin).
+ */
+export const getAllPayments = async () => {
+    try {
+        const snapshot = await getDocs(collection(db, 'paymentRequests'));
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+        console.error("Error fetching all payments:", error);
         throw error;
     }
 };

@@ -3,7 +3,6 @@ import { addDoc, collection, doc, getDocs, increment, updateDoc } from 'firebase
 import { useEffect, useState } from 'react';
 import { db } from '../../firebase';
 import { getYoutubeId } from '../../utils/youtubeUtils';
-import '../../styles/Admin.css';
 
 const AddLesson = () => {
     const [loading, setLoading] = useState(false);
@@ -41,9 +40,9 @@ const AddLesson = () => {
 
         const cleanVideoId = getYoutubeId(lessonVideoId);
         if (!cleanVideoId) {
-             setMessage('Error: Invalid YouTube URL or ID.');
-             setLoading(false);
-             return;
+            setMessage('Error: Invalid YouTube URL or ID.');
+            setLoading(false);
+            return;
         }
 
         try {

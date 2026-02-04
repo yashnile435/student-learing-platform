@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { FaTimes } from 'react-icons/fa';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
-import { enrollFreeCourse, submitManualPayment } from '../services/paymentService'; // Updated import
+import { enrollFreeCourse, submitManualPayment, uploadPaymentScreenshot } from '../services/paymentService'; // Updated import
 import '../index.css';
 
 const Courses = () => {
@@ -19,6 +19,9 @@ const Courses = () => {
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [paymentStatus, setPaymentStatus] = useState('initial'); // initial, processing, success, error
     const [paymentError, setPaymentError] = useState('');
+    const [screenshotFile, setScreenshotFile] = useState(null);
+    const [screenshotPreview, setScreenshotPreview] = useState(null);
+    const [transactionId, setTransactionId] = useState('');
 
     const { user, userData } = useAuth();
     const navigate = useNavigate();
@@ -89,6 +92,18 @@ const Courses = () => {
         }
     };
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setScreenshotFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setScreenshotPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handlePaymentSubmit = async () => {
         if (!user || !selectedCourse) return;
 
@@ -96,12 +111,20 @@ const Courses = () => {
         setPaymentError('');
 
         try {
+            let screenshotUrl = null;
+            if (screenshotFile) {
+                screenshotUrl = await uploadPaymentScreenshot(screenshotFile, user.uid);
+            }
+
             await submitManualPayment({
                 userId: user.uid,
                 userName: userData?.name || user.displayName || 'Unknown Student',
+                userEmail: user.email,
                 courseId: selectedCourse.id,
                 courseName: selectedCourse.title,
-                amount: selectedCourse.price
+                amount: selectedCourse.price,
+                screenshotUrl: screenshotUrl,
+                transactionId: transactionId.trim()
             });
             setPaymentStatus('success');
         } catch (error) {
@@ -115,6 +138,9 @@ const Courses = () => {
         setShowPaymentModal(false);
         setSelectedCourse(null);
         setPaymentStatus('initial');
+        setScreenshotFile(null);
+        setScreenshotPreview(null);
+        setTransactionId('');
     };
 
     useEffect(() => {
@@ -192,7 +218,7 @@ const Courses = () => {
                     position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
                     background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
                 }}>
-                    <div className="card" style={{ width: '90%', maxWidth: '450px', position: 'relative', maxHeight: '90vh', overflowY: 'auto' }}>
+                    <div className="card" style={{ width: '90%', maxWidth: '500px', position: 'relative', maxHeight: '90vh', overflowY: 'auto' }}>
                         <button
                             onClick={closePaymentModal}
                             style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#666' }}
@@ -200,53 +226,104 @@ const Courses = () => {
                             <FaTimes />
                         </button>
 
-                        <h2 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Confirm Purchase</h2>
+                        <h2 style={{ textAlign: 'center', marginBottom: '1rem' }}>Complete Payment</h2>
+                        <p style={{ textAlign: 'center', color: '#666', marginBottom: '1.5rem' }}>
+                            Pay <strong>₹{selectedCourse.price}</strong> for <strong>{selectedCourse.title}</strong>
+                        </p>
 
                         {paymentStatus === 'initial' && (
-                            <div style={{ textAlign: 'center' }}>
-                                <p style={{ marginBottom: '1rem', color: '#666' }}>
-                                    Scan QR code to pay <strong>₹{selectedCourse.price}</strong> for <strong>{selectedCourse.title}</strong>
-                                </p>
-                                <div style={{
-                                    border: '2px solid #eee',
-                                    padding: '10px',
-                                    borderRadius: '8px',
-                                    marginBottom: '1.5rem',
-                                    display: 'inline-block'
-                                }}>
-                                    <img
-                                        src="/QR.jpeg"
-                                        alt="Payment QR Code"
-                                        style={{ width: '200px', height: '200px', objectFit: 'contain' }}
+                            <div>
+                                {/* QR Code Section */}
+                                <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                                    <div style={{
+                                        border: '2px solid #eee',
+                                        padding: '10px',
+                                        borderRadius: '8px',
+                                        marginBottom: '1rem',
+                                        display: 'inline-block'
+                                    }}>
+                                        <img
+                                            src="/QR.jpeg"
+                                            alt="Payment QR Code"
+                                            style={{ width: '200px', height: '200px', objectFit: 'contain' }}
+                                        />
+                                    </div>
+                                    <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>
+                                        Scan QR with any UPI app and pay <strong>₹{selectedCourse.price}</strong>
+                                    </p>
+                                </div>
+
+                                {/* Transaction ID Input */}
+                                <div style={{ marginBottom: '1.5rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+                                        Transaction ID <span style={{ color: 'red' }}>*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        className="form-input"
+                                        placeholder="Enter UPI Transaction ID"
+                                        value={transactionId}
+                                        onChange={(e) => setTransactionId(e.target.value)}
+                                        required
+                                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd' }}
                                     />
+                                    <small style={{ color: '#666', fontSize: '0.85rem' }}>
+                                        Enter the transaction ID from your payment app
+                                    </small>
                                 </div>
-                                <div style={{ textAlign: 'left', background: '#f8fafc', padding: '1rem', borderRadius: '8px', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                                    <p style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Instructions:</p>
-                                    <ol style={{ paddingLeft: '1.2rem', margin: 0 }}>
-                                        <li>Scan QR with any UPI app.</li>
-                                        <li>Pay exact amount: <strong>₹{selectedCourse.price}</strong>.</li>
-                                        <li>Click 'Payment Completed' below.</li>
-                                    </ol>
+
+                                {/* Screenshot Upload */}
+                                <div style={{ marginBottom: '1.5rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+                                        Payment Screenshot <span style={{ color: 'red' }}>*</span>
+                                    </label>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                        style={{ width: '100%' }}
+                                    />
+                                    {screenshotPreview && (
+                                        <div style={{ marginTop: '0.5rem', border: '1px solid #ddd', borderRadius: '4px', padding: '5px' }}>
+                                            <img src={screenshotPreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '150px', display: 'block' }} />
+                                        </div>
+                                    )}
+                                    <small style={{ color: '#666', fontSize: '0.85rem' }}>
+                                        Upload a clear screenshot of your payment confirmation
+                                    </small>
                                 </div>
-                                <button onClick={handlePaymentSubmit} className="btn btn-primary full-width">
-                                    Payment Completed
+
+                                {/* Submit Button */}
+                                <button
+                                    onClick={handlePaymentSubmit}
+                                    className="btn btn-primary full-width"
+                                    disabled={!transactionId.trim() || !screenshotFile}
+                                    style={{ opacity: (!transactionId.trim() || !screenshotFile) ? 0.5 : 1 }}
+                                >
+                                    Submit Payment
                                 </button>
+
+                                {(!transactionId.trim() || !screenshotFile) && (
+                                    <p style={{ textAlign: 'center', fontSize: '0.85rem', color: '#999', marginTop: '0.5rem' }}>
+                                        Please enter transaction ID and upload screenshot
+                                    </p>
+                                )}
                             </div>
                         )}
 
                         {paymentStatus === 'processing' && (
                             <div style={{ textAlign: 'center', padding: '2rem 0' }}>
                                 <div className="spinner" style={{ margin: '0 auto 1rem' }}></div>
-                                <p>Verifying submission...</p>
+                                <p>Submitting payment...</p>
                             </div>
                         )}
 
                         {paymentStatus === 'success' && (
                             <div style={{ textAlign: 'center' }}>
-                                <div style={{ fontSize: '3rem', color: '#f59e0b', marginBottom: '1rem' }}>✓</div>
+                                <div style={{ fontSize: '3rem', color: '#10b981', marginBottom: '1rem' }}>✓</div>
                                 <h3>Payment Submitted</h3>
                                 <p style={{ margin: '1rem 0', color: '#666' }}>
-                                    Your payment is under review. Access will be granted shortly after admin approval.
+                                    Payment submitted successfully. Access will be granted after admin verification.
                                 </p>
                                 <button onClick={closePaymentModal} className="btn btn-secondary full-width">
                                     Close
@@ -257,7 +334,7 @@ const Courses = () => {
                         {paymentStatus === 'error' && (
                             <div style={{ textAlign: 'center' }}>
                                 <div style={{ fontSize: '3rem', color: '#dc3545', marginBottom: '1rem' }}>✕</div>
-                                <h3>Failed</h3>
+                                <h3>Submission Failed</h3>
                                 <p>{paymentError}</p>
                                 <button onClick={() => setPaymentStatus('initial')} className="btn btn-secondary full-width mt-3">
                                     Try Again

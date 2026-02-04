@@ -35,6 +35,7 @@ const DashboardLayout = () => {
                 { path: '/admin/create', icon: <FaPlus />, label: 'Create Course' },
                 { path: '/admin/manage-teachers', icon: <FaUsers />, label: 'Manage Teachers' },
                 { path: '/admin/create-teacher', icon: <FaChalkboardTeacher />, label: 'Create Teacher' },
+                { path: '/admin/received-payments', icon: <FaChartBar />, label: 'Received Payments' },
                 { path: '/admin/reports', icon: <FaChartBar />, label: 'Reports' },
                 { path: '/profile', icon: <FaUser />, label: 'My Profile' },
             ];
