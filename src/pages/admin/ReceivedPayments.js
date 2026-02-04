@@ -49,8 +49,10 @@ const ReceivedPayments = () => {
         setProcessingId(payment.id);
         try {
             await grantAccessManualPayment(payment.id, payment.userId, payment.courseId);
-            // Remove from list as it's fully processed
-            setPayments(prev => prev.filter(p => p.id !== payment.id));
+            // Update status to 'access_granted' instead of removing
+            setPayments(prev => prev.map(p =>
+                p.id === payment.id ? { ...p, status: 'access_granted' } : p
+            ));
             alert(`Access granted to ${payment.userName}`);
         } catch (error) {
             console.error("Granting access failed:", error);
@@ -66,7 +68,10 @@ const ReceivedPayments = () => {
         setProcessingId(payment.id);
         try {
             await rejectManualPayment(payment.id);
-            setPayments(prev => prev.filter(p => p.id !== payment.id));
+            // Update status to 'rejected' instead of removing
+            setPayments(prev => prev.map(p =>
+                p.id === payment.id ? { ...p, status: 'rejected' } : p
+            ));
             alert(`Payment rejected for ${payment.userName}`);
         } catch (error) {
             console.error("Rejection failed:", error);
@@ -76,18 +81,44 @@ const ReceivedPayments = () => {
         }
     };
 
+    // Helper for status badge styling
+    const getStatusBadge = (status) => {
+        const styles = {
+            submitted: { bg: '#fff7ed', color: '#c2410c' },
+            verified: { bg: '#dcfce7', color: '#166534' },
+            access_granted: { bg: '#dbeafe', color: '#1e40af' },
+            rejected: { bg: '#fee2e2', color: '#991b1b' },
+            processing: { bg: '#fef9c3', color: '#854d0e' }
+        };
+        const style = styles[status] || styles.submitted;
+        return (
+            <span className="badge" style={{
+                background: style.bg,
+                color: style.color,
+                padding: '0.25rem 0.75rem',
+                borderRadius: '12px',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                border: `1px solid ${style.bg}`
+            }}>
+                {status.replace('_', ' ')}
+            </span>
+        );
+    };
+
     if (loading) {
         return <div className="p-4">Loading payments...</div>;
     }
 
     return (
         <div>
-            <h1 className="mb-4">Received Payments</h1>
+            <h1 className="mb-4">All Payment Requests</h1>
 
             {payments.length === 0 ? (
                 <div className="card text-center" style={{ padding: '3rem' }}>
-                    <h3 style={{ marginBottom: '1rem', color: '#666' }}>No Pending Payments</h3>
-                    <p style={{ color: '#999' }}>All submission requests have been processed.</p>
+                    <h3 style={{ marginBottom: '1rem', color: '#666' }}>No Payment Requests</h3>
+                    <p style={{ color: '#999' }}>No payment records found.</p>
                 </div>
             ) : (
                 <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
@@ -96,14 +127,14 @@ const ReceivedPayments = () => {
                             <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                                 <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 600 }}>Student details</th>
                                 <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 600 }}>Course & Transaction</th>
-                                <th style={{ padding: '1rem', textAlign: 'center', fontWeight: 600 }}>Screenshot</th>
+
                                 <th style={{ padding: '1rem', textAlign: 'center', fontWeight: 600 }}>Status</th>
                                 <th style={{ padding: '1rem', textAlign: 'center', fontWeight: 600 }}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {payments.map(payment => (
-                                <tr key={payment.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                <tr key={payment.id} style={{ borderBottom: '1px solid #e2e8f0', background: payment.status === 'rejected' ? '#fffbfc' : 'white' }}>
                                     <td style={{ padding: '1rem' }}>
                                         <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{payment.userName}</div>
                                         <div style={{ fontSize: '0.875rem', color: '#666' }}>{payment.userEmail || 'N/A'}</div>
@@ -124,99 +155,84 @@ const ReceivedPayments = () => {
                                             {payment.transactionId || 'N/A'}
                                         </div>
                                     </td>
+
                                     <td style={{ padding: '1rem', textAlign: 'center' }}>
-                                        {payment.screenshotUrl ? (
-                                            <button
-                                                onClick={() => setViewScreenshot(payment.screenshotUrl)}
-                                                style={{
-                                                    background: 'none',
-                                                    border: 'none',
-                                                    color: '#2563eb',
-                                                    cursor: 'pointer',
-                                                    display: 'inline-flex',
-                                                    alignItems: 'center',
-                                                    gap: '0.25rem',
-                                                    textDecoration: 'underline'
-                                                }}
-                                            >
-                                                <FaImage /> View
-                                            </button>
-                                        ) : (
-                                            <span style={{ color: '#aaa', fontSize: '0.875rem' }}>No screenshot</span>
-                                        )}
+                                        {getStatusBadge(payment.status)}
                                     </td>
-                                    <td style={{ padding: '1rem', textAlign: 'center' }}>
-                                        <span className="badge" style={{
-                                            background: payment.status === 'verified' ? '#dcfce7' : '#fff7ed',
-                                            color: payment.status === 'verified' ? '#166534' : '#c2410c',
-                                            padding: '0.25rem 0.75rem',
-                                            borderRadius: '12px',
-                                            fontSize: '0.75rem',
-                                            fontWeight: 600,
-                                            textTransform: 'uppercase'
-                                        }}>
-                                            {payment.status}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '1rem', textAlign: 'center' }}>
+                                    <td style={{ padding: '1rem', textAlign: 'center', minWidth: '200px' }}>
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>
+                                            {/* Action Buttons based on Status */}
                                             {payment.status === 'submitted' && (
-                                                <button
-                                                    className="btn"
-                                                    onClick={() => handleVerify(payment)}
-                                                    disabled={processingId === payment.id}
-                                                    style={{
-                                                        backgroundColor: '#f59e0b',
-                                                        borderColor: '#f59e0b',
-                                                        color: '#fff',
-                                                        width: '100%',
-                                                        display: 'flex',
-                                                        justifyContent: 'center',
-                                                        alignItems: 'center',
-                                                        gap: '5px',
-                                                        fontSize: '0.85rem',
-                                                        padding: '0.4rem'
-                                                    }}
-                                                >
-                                                    <FaShieldAlt /> Verify Payment
-                                                </button>
+                                                <>
+                                                    <button
+                                                        className="btn"
+                                                        onClick={() => handleVerify(payment)}
+                                                        disabled={processingId === payment.id}
+                                                        style={{
+                                                            backgroundColor: '#f59e0b',
+                                                            borderColor: '#f59e0b',
+                                                            color: '#fff',
+                                                            width: '100%',
+                                                            fontSize: '0.85rem',
+                                                            padding: '0.4rem',
+                                                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px'
+                                                        }}
+                                                    >
+                                                        <FaShieldAlt /> Verify Payment
+                                                    </button>
+                                                    <button
+                                                        className="btn"
+                                                        onClick={() => handleReject(payment)}
+                                                        disabled={processingId === payment.id}
+                                                        style={{
+                                                            background: 'none', color: '#dc2626', border: '1px solid #dc2626',
+                                                            width: '100%', fontSize: '0.85rem', padding: '0.3rem'
+                                                        }}
+                                                    >
+                                                        Reject
+                                                    </button>
+                                                </>
                                             )}
 
-                                            <button
-                                                className="btn btn-primary"
-                                                onClick={() => handleGrantAccess(payment)}
-                                                disabled={processingId === payment.id || payment.status !== 'verified'}
-                                                style={{
-                                                    backgroundColor: payment.status === 'verified' ? '#10b981' : '#ccc',
-                                                    borderColor: payment.status === 'verified' ? '#10b981' : '#ccc',
-                                                    cursor: payment.status === 'verified' ? 'pointer' : 'not-allowed',
-                                                    width: '100%',
-                                                    display: 'flex',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                    gap: '5px',
-                                                    fontSize: '0.85rem',
-                                                    padding: '0.4rem'
-                                                }}
-                                            >
-                                                <FaKey /> Grant Access
-                                            </button>
+                                            {payment.status === 'verified' && (
+                                                <>
+                                                    <button
+                                                        className="btn btn-primary"
+                                                        onClick={() => handleGrantAccess(payment)}
+                                                        disabled={processingId === payment.id}
+                                                        style={{
+                                                            backgroundColor: '#10b981', borderColor: '#10b981',
+                                                            width: '100%', fontSize: '0.85rem', padding: '0.4rem',
+                                                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px'
+                                                        }}
+                                                    >
+                                                        <FaKey /> Grant Access
+                                                    </button>
+                                                    <button
+                                                        className="btn"
+                                                        onClick={() => handleReject(payment)}
+                                                        disabled={processingId === payment.id}
+                                                        style={{
+                                                            background: 'none', color: '#dc2626', border: '1px solid #dc2626',
+                                                            width: '100%', fontSize: '0.85rem', padding: '0.3rem'
+                                                        }}
+                                                    >
+                                                        Reject
+                                                    </button>
+                                                </>
+                                            )}
 
-                                            <button
-                                                className="btn"
-                                                onClick={() => handleReject(payment)}
-                                                disabled={processingId === payment.id}
-                                                style={{
-                                                    background: 'none',
-                                                    color: '#dc2626',
-                                                    border: '1px solid #dc2626',
-                                                    width: '100%',
-                                                    fontSize: '0.85rem',
-                                                    padding: '0.3rem'
-                                                }}
-                                            >
-                                                Reject
-                                            </button>
+                                            {(payment.status === 'access_granted' || payment.status === 'approved') && (
+                                                <span style={{ color: '#10b981', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                    <FaCheck /> Access Granted
+                                                </span>
+                                            )}
+
+                                            {payment.status === 'rejected' && (
+                                                <span style={{ color: '#dc2626', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                    <FaTimes /> Rejected
+                                                </span>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>

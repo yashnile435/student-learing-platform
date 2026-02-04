@@ -115,18 +115,52 @@ export const uploadPaymentScreenshot = async (file, userId) => {
 
 /**
  * Submits a manual payment request after QR code payment.
- * @param {object} paymentData - { userId, courseId, courseName, userName, amount, screenshotUrl }
+ * @param {object} paymentData - { userId, courseId, courseName, userName, amount, transactionId }
  */
 export const submitManualPayment = async (paymentData) => {
     try {
+        // Validation: Check for duplicates in 'transactions'
+        // Validation: Check for duplicates in 'transactions'
+        // Simplified query to avoid missing index errors
+        const q = query(
+            collection(db, 'transactions'),
+            where('userId', '==', paymentData.userId),
+            where('courseId', '==', paymentData.courseId)
+        );
+        const existingSnapshot = await getDocs(q);
+
+        // Filter in memory to be safe against index requirements
+        const duplicate = existingSnapshot.docs.find(doc => {
+            const status = doc.data().status;
+            return ['submitted', 'verified', 'processing'].includes(status);
+        });
+
+        if (duplicate) {
+            throw new Error("You have already submitted a payment for this course. Please wait for verification.");
+        }
+
+        // Explicitly define fields for 'transactions' collection
         const data = {
-            ...paymentData,
+            userId: paymentData.userId,
+            userName: paymentData.userName,
+            userEmail: paymentData.userEmail,
+            courseId: paymentData.courseId,
+            courseName: paymentData.courseName,
+            amount: paymentData.amount,
+
+            // Critical fields
+            transactionId: paymentData.transactionId,
+            paymentMethod: 'QR', // Requirement
+
             status: 'submitted',
-            timestamp: serverTimestamp(),
-            createdAt: serverTimestamp(), // detailed timestamp
+            createdAt: serverTimestamp(),
+            timestamp: serverTimestamp(), // Keeping for backward compat if needed, but createdAt is main
+            verifiedAt: null,
+            accessGrantedAt: null,
             type: 'manual_qr'
         };
-        const docRef = await addDoc(collection(db, 'paymentRequests'), data);
+
+        const docRef = await addDoc(collection(db, 'transactions'), data);
         return docRef.id;
     } catch (error) {
         console.error("Error submitting manual payment:", error);
@@ -135,53 +169,54 @@ export const submitManualPayment = async (paymentData) => {
 };
 
 /**
- * Fetches all pending manual payment requests.
+ * Fetches all transaction records (Admin view).
+ * Replaces getPendingPayments usage.
  */
 export const getPendingPayments = async () => {
     try {
         const q = query(
-            collection(db, 'paymentRequests'),
-            orderBy('timestamp', 'desc')
+            collection(db, 'transactions'),
+            orderBy('createdAt', 'desc')
         );
         const snapshot = await getDocs(q);
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
-        console.error("Error fetching pending payments:", error);
-        throw error; // Propagate error for UI handling
+        console.error("Error fetching transactions:", error);
+        throw error;
     }
 };
 
 /**
- * 1. Verify Payment (Does NOT grant access)
- * @param {string} requestId 
+ * 1. Verify Transaction (Does NOT grant access)
+ * @param {string} transactionId 
  */
-export const verifyManualPayment = async (requestId) => {
+export const verifyManualPayment = async (transactionId) => {
     try {
-        const requestRef = doc(db, 'paymentRequests', requestId);
-        await updateDoc(requestRef, {
+        const docRef = doc(db, 'transactions', transactionId);
+        await updateDoc(docRef, {
             status: 'verified',
             verifiedAt: serverTimestamp()
         });
         return true;
     } catch (error) {
-        console.error("Error verifying payment:", error);
+        console.error("Error verifying transaction:", error);
         throw error;
     }
 };
 
 /**
  * 2. Grant Access (Final Step)
- * @param {string} requestId 
+ * @param {string} transactionId 
  * @param {string} userId 
  * @param {string} courseId 
  */
-export const grantAccessManualPayment = async (requestId, userId, courseId) => {
+export const grantAccessManualPayment = async (transactionId, userId, courseId) => {
     try {
-        // 1. Update request status
-        const requestRef = doc(db, 'paymentRequests', requestId);
-        await updateDoc(requestRef, {
+        // 1. Update transaction status
+        const docRef = doc(db, 'transactions', transactionId);
+        await updateDoc(docRef, {
             status: 'access_granted',
-            grantedAt: serverTimestamp()
+            accessGrantedAt: serverTimestamp()
         });
 
         // 2. Grant access to course
@@ -198,19 +233,19 @@ export const grantAccessManualPayment = async (requestId, userId, courseId) => {
 };
 
 /**
- * Rejects a manual payment request.
- * @param {string} requestId 
+ * Rejects a transaction.
+ * @param {string} transactionId 
  */
-export const rejectManualPayment = async (requestId) => {
+export const rejectManualPayment = async (transactionId) => {
     try {
-        const requestRef = doc(db, 'paymentRequests', requestId);
-        await updateDoc(requestRef, {
+        const docRef = doc(db, 'transactions', transactionId);
+        await updateDoc(docRef, {
             status: 'rejected',
             rejectedAt: serverTimestamp()
         });
         return true;
     } catch (error) {
-        console.error("Error rejecting payment:", error);
+        console.error("Error rejecting transaction:", error);
         throw error;
     }
 };
@@ -222,14 +257,14 @@ export const rejectManualPayment = async (requestId) => {
 export const getUserPayments = async (userId) => {
     try {
         const q = query(
-            collection(db, 'paymentRequests'),
+            collection(db, 'transactions'),
             where('userId', '==', userId),
-            orderBy('timestamp', 'desc')
+            orderBy('createdAt', 'desc')
         );
         const snapshot = await getDocs(q);
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
-        console.error("Error fetching user payments:", error);
+        console.error("Error fetching user transactions:", error);
         throw error;
     }
 };
@@ -239,10 +274,10 @@ export const getUserPayments = async (userId) => {
  */
 export const getAllPayments = async () => {
     try {
-        const snapshot = await getDocs(collection(db, 'paymentRequests'));
+        const snapshot = await getDocs(collection(db, 'transactions'));
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
-        console.error("Error fetching all payments:", error);
+        console.error("Error fetching all transactions:", error);
         throw error;
     }
 };

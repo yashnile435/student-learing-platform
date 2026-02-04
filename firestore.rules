@@ -107,7 +107,19 @@ service cloud.firestore {
     match /paymentRequests/{requestId} {
       allow create: if isSignedIn()
         && request.resource.data.userId == request.auth.uid
-        && request.resource.data.status == "pending";
+        && (request.resource.data.status == "pending" || request.resource.data.status == "submitted");
+      
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow update: if isAdmin();
+    }
+
+    /* ────────────────
+       Transactions Collection (New Manual QR System)
+       ──────────────── */
+    match /transactions/{transactionId} {
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == "submitted";
       
       allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
       allow update: if isAdmin();

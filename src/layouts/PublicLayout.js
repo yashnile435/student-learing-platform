@@ -88,25 +88,29 @@ const PublicLayout = () => {
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        background: 'white',
+                        background: 'rgba(255, 255, 255, 0.98)',
+                        backdropFilter: 'blur(10px)',
                         zIndex: 2000,
                         display: 'flex',
                         flexDirection: 'column',
-                        padding: '1rem'
+                        padding: '1.5rem'
                     }} className="show-mobile">
                         {/* Mobile Header */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', height: 'var(--header-height)' }}>
-                            <div style={{ fontWeight: 700, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                YaTi Learning
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
+                            <div style={{ fontWeight: 800, fontSize: '1.5rem', color: 'var(--primary-color)' }} onClick={() => setMobileMenuOpen(false)}>
+                                <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>YaTi Learning</Link>
                             </div>
                             <button
                                 onClick={() => setMobileMenuOpen(false)}
                                 style={{
                                     background: 'transparent',
                                     border: 'none',
-                                    fontSize: '1.5rem',
+                                    fontSize: '1.8rem',
                                     cursor: 'pointer',
-                                    color: 'var(--text-main)'
+                                    color: 'var(--text-main)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
                                 }}
                             >
                                 <FaTimes />
@@ -114,34 +118,67 @@ const PublicLayout = () => {
                         </div>
 
                         {/* Menu Items */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', flex: 1 }}>
-                            <Link to="/" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '1.1rem', fontWeight: 500, color: 'var(--text-main)', padding: '0.5rem 0' }}>Home</Link>
-                            <Link to="/courses" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '1.1rem', fontWeight: 500, color: 'var(--primary-color)', padding: '0.5rem 0', borderBottom: '2px solid var(--primary-color)', width: 'fit-content' }}>Courses</Link>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', alignItems: 'center' }}>
+                            <Link
+                                to="/"
+                                onClick={() => setMobileMenuOpen(false)}
+                                style={{
+                                    fontSize: '1.25rem',
+                                    fontWeight: location.pathname === '/' ? 700 : 500,
+                                    color: location.pathname === '/' ? 'var(--primary-color)' : 'var(--text-main)',
+                                    textDecoration: 'none'
+                                }}
+                            >
+                                Home
+                            </Link>
+                            <Link
+                                to="/courses"
+                                onClick={() => setMobileMenuOpen(false)}
+                                style={{
+                                    fontSize: '1.25rem',
+                                    fontWeight: location.pathname === '/courses' ? 700 : 500,
+                                    color: location.pathname === '/courses' ? 'var(--primary-color)' : 'var(--text-main)',
+                                    textDecoration: 'none'
+                                }}
+                            >
+                                Browse Courses
+                            </Link>
                             {!user && (
-                                <div onClick={() => {
-                                    setMobileMenuOpen(false);
-                                    if (location.pathname === '/') {
-                                        document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-                                    } else {
-                                        navigate('/', { state: { scrollTo: 'contact' } });
-                                    }
-                                }} style={{ fontSize: '1.1rem', fontWeight: 500, color: 'var(--text-main)', padding: '0.5rem 0', cursor: 'pointer' }}>Contact</div>
+                                <div
+                                    onClick={() => {
+                                        setMobileMenuOpen(false);
+                                        if (location.pathname === '/') {
+                                            document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                                        } else {
+                                            navigate('/', { state: { scrollTo: 'contact' } });
+                                        }
+                                    }}
+                                    style={{
+                                        fontSize: '1.25rem',
+                                        fontWeight: 500,
+                                        color: 'var(--text-main)',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    Contact
+                                </div>
                             )}
                         </div>
 
                         {/* Action Buttons */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: 'auto', paddingBottom: '2rem' }}>
+                        <div style={{ marginTop: '3rem', padding: '0 1rem' }}>
                             {user ? (
                                 <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="btn btn-primary" style={{
                                     width: '100%',
                                     textAlign: 'center',
                                     padding: '1rem',
                                     fontSize: '1.1rem',
-                                    borderRadius: '50px',
+                                    borderRadius: '12px',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    gap: '0.5rem'
+                                    gap: '0.5rem',
+                                    boxShadow: '0 4px 15px rgba(124, 58, 237, 0.2)'
                                 }}>
                                     <FaUser /> Go to Dashboard
                                 </Link>
@@ -152,11 +189,12 @@ const PublicLayout = () => {
                                         textAlign: 'center',
                                         padding: '1rem',
                                         fontSize: '1.1rem',
-                                        borderRadius: '50px',
+                                        borderRadius: '12px',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        gap: '0.5rem'
+                                        gap: '0.5rem',
+                                        boxShadow: '0 4px 15px rgba(124, 58, 237, 0.2)'
                                     }}>
                                         <FaUser /> Login
                                     </Link>

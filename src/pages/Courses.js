@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { FaTimes } from 'react-icons/fa';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
-import { enrollFreeCourse, submitManualPayment, uploadPaymentScreenshot } from '../services/paymentService'; // Updated import
+import { enrollFreeCourse, submitManualPayment } from '../services/paymentService'; // Updated import
 import '../index.css';
 
 const Courses = () => {
@@ -19,8 +19,6 @@ const Courses = () => {
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [paymentStatus, setPaymentStatus] = useState('initial'); // initial, processing, success, error
     const [paymentError, setPaymentError] = useState('');
-    const [screenshotFile, setScreenshotFile] = useState(null);
-    const [screenshotPreview, setScreenshotPreview] = useState(null);
     const [transactionId, setTransactionId] = useState('');
 
     const { user, userData } = useAuth();
@@ -92,32 +90,16 @@ const Courses = () => {
         }
     };
 
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setScreenshotFile(file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setScreenshotPreview(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
+
 
     const handlePaymentSubmit = async () => {
         if (!user || !selectedCourse) return;
 
-        // Optimistic update: Show success immediately so user doesn't wait
-        setPaymentStatus('success');
+        setPaymentStatus('processing');
         setPaymentError('');
 
-        // Process in background
         try {
-            let screenshotUrl = null;
-            if (screenshotFile) {
-                screenshotUrl = await uploadPaymentScreenshot(screenshotFile, user.uid);
-            }
-
+            // No screenshot upload needed
             await submitManualPayment({
                 userId: user.uid,
                 userName: userData?.name || user.displayName || 'Unknown Student',
@@ -125,13 +107,22 @@ const Courses = () => {
                 courseId: selectedCourse.id,
                 courseName: selectedCourse.title,
                 amount: selectedCourse.price,
-                screenshotUrl: screenshotUrl,
+                screenshotUrl: null,
                 transactionId: transactionId.trim()
             });
+
+            setPaymentStatus('success');
         } catch (error) {
             console.error("Payment submission failed:", error);
-            // Since we already showed success, we might log this or handle silently
-            // In a real app, we might want a global toast notification for failure
+
+            let errorMessage = error.message || "Failed to submit payment. Please try again.";
+            // Detect common AdBroker/Network block errors
+            if (errorMessage.includes('BLOCKED_BY_CLIENT') || errorMessage.includes('Failed to fetch') || errorMessage.includes('network')) {
+                errorMessage = "Network request failed. Please disable any Ad Blockers or Privacy extensions and try again.";
+            }
+
+            setPaymentError(errorMessage);
+            setPaymentStatus('error');
         }
     };
 
@@ -139,8 +130,6 @@ const Courses = () => {
         setShowPaymentModal(false);
         setSelectedCourse(null);
         setPaymentStatus('initial');
-        setScreenshotFile(null);
-        setScreenshotPreview(null);
         setTransactionId('');
     };
 
@@ -273,40 +262,21 @@ const Courses = () => {
                                     </small>
                                 </div>
 
-                                {/* Screenshot Upload */}
-                                <div style={{ marginBottom: '1.5rem' }}>
-                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
-                                        Payment Screenshot <span style={{ color: 'red' }}>*</span>
-                                    </label>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleFileChange}
-                                        style={{ width: '100%' }}
-                                    />
-                                    {screenshotPreview && (
-                                        <div style={{ marginTop: '0.5rem', border: '1px solid #ddd', borderRadius: '4px', padding: '5px' }}>
-                                            <img src={screenshotPreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '150px', display: 'block' }} />
-                                        </div>
-                                    )}
-                                    <small style={{ color: '#666', fontSize: '0.85rem' }}>
-                                        Upload a clear screenshot of your payment confirmation
-                                    </small>
-                                </div>
+
 
                                 {/* Submit Button */}
                                 <button
                                     onClick={handlePaymentSubmit}
                                     className="btn btn-primary full-width"
-                                    disabled={!transactionId.trim() || !screenshotFile}
-                                    style={{ opacity: (!transactionId.trim() || !screenshotFile) ? 0.5 : 1 }}
+                                    disabled={!transactionId.trim()}
+                                    style={{ opacity: (!transactionId.trim()) ? 0.5 : 1 }}
                                 >
                                     Submit Payment
                                 </button>
 
-                                {(!transactionId.trim() || !screenshotFile) && (
+                                {(!transactionId.trim()) && (
                                     <p style={{ textAlign: 'center', fontSize: '0.85rem', color: '#999', marginTop: '0.5rem' }}>
-                                        Please enter transaction ID and upload screenshot
+                                        Please enter transaction ID
                                     </p>
                                 )}
                             </div>
@@ -324,7 +294,7 @@ const Courses = () => {
                                 <div style={{ fontSize: '3rem', color: '#10b981', marginBottom: '1rem' }}>✓</div>
                                 <h3 style={{ borderBottom: 'none' }}>Payment Submitted</h3>
                                 <p style={{ margin: '1rem 0', color: '#666' }}>
-                                    Payment submitted successfully! You will get access in some time (approx. 2-3 hours) once the admin verifies your payment details.
+                                    Payment submitted successfully. Your access will be granted after admin verification.
                                 </p>
                                 <button onClick={closePaymentModal} className="btn btn-secondary full-width">
                                     Close
