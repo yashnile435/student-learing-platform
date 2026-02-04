@@ -107,6 +107,82 @@ const ReceivedPayments = () => {
         );
     };
 
+    const PaymentActions = ({ payment }) => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>
+            {payment.status === 'submitted' && (
+                <>
+                    <button
+                        className="btn"
+                        onClick={() => handleVerify(payment)}
+                        disabled={processingId === payment.id}
+                        style={{
+                            backgroundColor: '#f59e0b',
+                            borderColor: '#f59e0b',
+                            color: '#fff',
+                            width: '100%',
+                            fontSize: '0.85rem',
+                            padding: '0.4rem',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px'
+                        }}
+                    >
+                        <FaShieldAlt /> Verify Payment
+                    </button>
+                    <button
+                        className="btn"
+                        onClick={() => handleReject(payment)}
+                        disabled={processingId === payment.id}
+                        style={{
+                            background: 'none', color: '#dc2626', border: '1px solid #dc2626',
+                            width: '100%', fontSize: '0.85rem', padding: '0.3rem'
+                        }}
+                    >
+                        Reject
+                    </button>
+                </>
+            )}
+
+            {payment.status === 'verified' && (
+                <>
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => handleGrantAccess(payment)}
+                        disabled={processingId === payment.id}
+                        style={{
+                            backgroundColor: '#10b981', borderColor: '#10b981',
+                            width: '100%', fontSize: '0.85rem', padding: '0.4rem',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px'
+                        }}
+                    >
+                        <FaKey /> Grant Access
+                    </button>
+                    <button
+                        className="btn"
+                        onClick={() => handleReject(payment)}
+                        disabled={processingId === payment.id}
+                        style={{
+                            background: 'none', color: '#dc2626', border: '1px solid #dc2626',
+                            width: '100%', fontSize: '0.85rem', padding: '0.3rem'
+                        }}
+                    >
+                        Reject
+                    </button>
+                </>
+            )}
+
+            {(payment.status === 'access_granted' || payment.status === 'approved') && (
+                <span style={{ color: '#10b981', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <FaCheck /> Access Granted
+                </span>
+            )}
+
+            {payment.status === 'rejected' && (
+                <span style={{ color: '#dc2626', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <FaTimes /> Rejected
+                </span>
+            )}
+        </div>
+    );
+
     if (loading) {
         return <div className="p-4">Loading payments...</div>;
     }
@@ -121,128 +197,85 @@ const ReceivedPayments = () => {
                     <p style={{ color: '#999' }}>No payment records found.</p>
                 </div>
             ) : (
-                <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '900px' }}>
-                        <thead>
-                            <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 600 }}>Student details</th>
-                                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 600 }}>Course & Transaction</th>
-
-                                <th style={{ padding: '1rem', textAlign: 'center', fontWeight: 600 }}>Status</th>
-                                <th style={{ padding: '1rem', textAlign: 'center', fontWeight: 600 }}>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {payments.map(payment => (
-                                <tr key={payment.id} style={{ borderBottom: '1px solid #e2e8f0', background: payment.status === 'rejected' ? '#fffbfc' : 'white' }}>
-                                    <td style={{ padding: '1rem' }}>
-                                        <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{payment.userName}</div>
-                                        <div style={{ fontSize: '0.875rem', color: '#666' }}>{payment.userEmail || 'N/A'}</div>
-                                        <div style={{ fontSize: '0.75rem', color: '#999', marginTop: '0.25rem' }}>
-                                            {payment.timestamp ? new Date(payment.timestamp.seconds * 1000).toLocaleString() : 'N/A'}
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: '1rem' }}>
-                                        <div style={{ fontWeight: 500, marginBottom: '0.5rem' }}>{payment.courseName}</div>
-                                        <div style={{
-                                            fontFamily: 'monospace',
-                                            background: '#f1f5f9',
-                                            padding: '0.25rem 0.5rem',
-                                            borderRadius: '4px',
-                                            fontSize: '0.875rem',
-                                            display: 'inline-block'
-                                        }}>
-                                            {payment.transactionId || 'N/A'}
-                                        </div>
-                                    </td>
-
-                                    <td style={{ padding: '1rem', textAlign: 'center' }}>
-                                        {getStatusBadge(payment.status)}
-                                    </td>
-                                    <td style={{ padding: '1rem', textAlign: 'center', minWidth: '200px' }}>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>
-                                            {/* Action Buttons based on Status */}
-                                            {payment.status === 'submitted' && (
-                                                <>
-                                                    <button
-                                                        className="btn"
-                                                        onClick={() => handleVerify(payment)}
-                                                        disabled={processingId === payment.id}
-                                                        style={{
-                                                            backgroundColor: '#f59e0b',
-                                                            borderColor: '#f59e0b',
-                                                            color: '#fff',
-                                                            width: '100%',
-                                                            fontSize: '0.85rem',
-                                                            padding: '0.4rem',
-                                                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px'
-                                                        }}
-                                                    >
-                                                        <FaShieldAlt /> Verify Payment
-                                                    </button>
-                                                    <button
-                                                        className="btn"
-                                                        onClick={() => handleReject(payment)}
-                                                        disabled={processingId === payment.id}
-                                                        style={{
-                                                            background: 'none', color: '#dc2626', border: '1px solid #dc2626',
-                                                            width: '100%', fontSize: '0.85rem', padding: '0.3rem'
-                                                        }}
-                                                    >
-                                                        Reject
-                                                    </button>
-                                                </>
-                                            )}
-
-                                            {payment.status === 'verified' && (
-                                                <>
-                                                    <button
-                                                        className="btn btn-primary"
-                                                        onClick={() => handleGrantAccess(payment)}
-                                                        disabled={processingId === payment.id}
-                                                        style={{
-                                                            backgroundColor: '#10b981', borderColor: '#10b981',
-                                                            width: '100%', fontSize: '0.85rem', padding: '0.4rem',
-                                                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px'
-                                                        }}
-                                                    >
-                                                        <FaKey /> Grant Access
-                                                    </button>
-                                                    <button
-                                                        className="btn"
-                                                        onClick={() => handleReject(payment)}
-                                                        disabled={processingId === payment.id}
-                                                        style={{
-                                                            background: 'none', color: '#dc2626', border: '1px solid #dc2626',
-                                                            width: '100%', fontSize: '0.85rem', padding: '0.3rem'
-                                                        }}
-                                                    >
-                                                        Reject
-                                                    </button>
-                                                </>
-                                            )}
-
-                                            {(payment.status === 'access_granted' || payment.status === 'approved') && (
-                                                <span style={{ color: '#10b981', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                                    <FaCheck /> Access Granted
-                                                </span>
-                                            )}
-
-                                            {payment.status === 'rejected' && (
-                                                <span style={{ color: '#dc2626', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                                    <FaTimes /> Rejected
-                                                </span>
-                                            )}
-                                        </div>
-                                    </td>
+                <>
+                    {/* Desktop Table View */}
+                    <div className="card hide-mobile" style={{ padding: 0, overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '900px' }}>
+                            <thead>
+                                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                                    <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 600 }}>Student details</th>
+                                    <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 600 }}>Course & Transaction</th>
+                                    <th style={{ padding: '1rem', textAlign: 'center', fontWeight: 600 }}>Status</th>
+                                    <th style={{ padding: '1rem', textAlign: 'center', fontWeight: 600 }}>Actions</th>
                                 </tr>
+                            </thead>
+                            <tbody>
+                                {payments.map(payment => (
+                                    <tr key={payment.id} style={{ borderBottom: '1px solid #e2e8f0', background: payment.status === 'rejected' ? '#fffbfc' : 'white' }}>
+                                        <td style={{ padding: '1rem' }}>
+                                            <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{payment.userName}</div>
+                                            <div style={{ fontSize: '0.875rem', color: '#666' }}>{payment.userEmail || 'N/A'}</div>
+                                            <div style={{ fontSize: '0.75rem', color: '#999', marginTop: '0.25rem' }}>
+                                                {payment.timestamp ? new Date(payment.timestamp.seconds * 1000).toLocaleString() : 'N/A'}
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '1rem' }}>
+                                            <div style={{ fontWeight: 500, marginBottom: '0.5rem' }}>{payment.courseName}</div>
+                                            <div style={{ fontFamily: 'monospace', background: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px', fontSize: '0.875rem', display: 'inline-block' }}>
+                                                {payment.transactionId || 'N/A'}
+                                            </div>
+                                            <div style={{ fontWeight: 600, color: 'var(--primary-color)', marginTop: '0.5rem' }}>₹{payment.amount}</div>
+                                        </td>
+                                        <td style={{ padding: '1rem', textAlign: 'center' }}>
+                                            {getStatusBadge(payment.status)}
+                                        </td>
+                                        <td style={{ padding: '1rem', textAlign: 'center', minWidth: '200px' }}>
+                                            <PaymentActions payment={payment} />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="show-mobile">
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            {payments.map(payment => (
+                                <div key={payment.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                        <div>
+                                            <div style={{ fontWeight: 700, fontSize: '1rem' }}>{payment.userName}</div>
+                                            <div style={{ fontSize: '0.8rem', color: '#666' }}>{payment.userEmail}</div>
+                                        </div>
+                                        {getStatusBadge(payment.status)}
+                                    </div>
+
+                                    <div style={{ padding: '0.75rem', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                                        <div style={{ fontSize: '0.8rem', color: '#666', marginBottom: '0.25rem' }}>Course</div>
+                                        <div style={{ fontWeight: 600, marginBottom: '0.5rem' }}>{payment.courseName}</div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span style={{ fontFamily: 'monospace', fontSize: '0.8rem', background: '#e2e8f0', padding: '2px 6px', borderRadius: '4px' }}>
+                                                {payment.transactionId}
+                                            </span>
+                                            <span style={{ fontWeight: 700, color: 'var(--primary-color)' }}>₹{payment.amount}</span>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ fontSize: '0.75rem', color: '#999', textAlign: 'right' }}>
+                                        {payment.timestamp ? new Date(payment.timestamp.seconds * 1000).toLocaleString() : 'N/A'}
+                                    </div>
+
+                                    <div style={{ borderTop: '1px solid #eee', paddingTop: '1rem' }}>
+                                        <PaymentActions payment={payment} />
+                                    </div>
+                                </div>
                             ))}
-                        </tbody>
-                    </table>
-                </div>
+                        </div>
+                    </div>
+                </>
             )}
 
-            {/* Screenshot Modal (Unchanged) */}
             {viewScreenshot && (
                 <div
                     style={{

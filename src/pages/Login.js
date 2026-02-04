@@ -1,12 +1,12 @@
 
 import { doc, getDoc } from 'firebase/firestore';
 import { useState } from 'react';
-import { FaGoogle } from 'react-icons/fa';
+import { FaGoogle, FaTimes } from 'react-icons/fa';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import PasswordInput from '../components/PasswordInput';
 import { db } from '../firebase';
-import '../index.css'; // Ensure new styles
+import '../styles/Auth.css';
 
 const Login = () => {
     const [identifier, setIdentifier] = useState('');
@@ -19,7 +19,6 @@ const Login = () => {
     const location = useLocation();
 
     const checkRoleAndRedirect = async (uid) => {
-        // Check for redirect path
         if (location.state?.from) {
             navigate(location.state.from, { state: location.state, replace: true });
             return;
@@ -69,49 +68,72 @@ const Login = () => {
     };
 
     return (
-        <div style={{ maxWidth: '400px', margin: '4rem auto', padding: '0 1rem' }}>
-            <div className="card">
-                <h2 className="text-center" style={{ marginBottom: '2rem' }}>Welcome Back</h2>
-                {error && <div style={{ background: '#fee2e2', color: '#991b1b', padding: '0.75rem', borderRadius: 'var(--radius)', marginBottom: '1rem', fontSize: '0.875rem' }}>{error}</div>}
+        <div className="auth-modal-overlay">
+            <div className="auth-modal-container">
+                <Link to="/" className="auth-modal-close">
+                    <FaTimes />
+                </Link>
 
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label className="form-label">Email Address</label>
-                        <input
-                            type="email"
-                            className="form-input"
-                            required
-                            value={identifier}
-                            onChange={(e) => setIdentifier(e.target.value)}
-                            placeholder="you@example.com"
-                        />
+                <div className="auth-tabs">
+                    <Link to="/signup" className="auth-tab">
+                        Sign up
+                    </Link>
+                    <div className="auth-tab auth-tab-active">
+                        Sign in
                     </div>
+                </div>
+
+                <h2 className="auth-modal-title">Welcome back</h2>
+
+                {error && (
+                    <div className="auth-modal-error">
+                        {error}
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="auth-modal-form">
+                    <input
+                        type="text"
+                        className="auth-modal-input"
+                        required
+                        value={identifier}
+                        onChange={(e) => setIdentifier(e.target.value)}
+                        placeholder="Enter your email"
+                    />
+
                     <PasswordInput
-                        label="Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        placeholder="••••••••"
+                        placeholder="Enter your password"
                     />
-                    <button disabled={loading} type="submit" className="btn btn-primary w-full" style={{ marginBottom: '1rem' }}>
-                        {loading ? 'Logging In...' : 'Log In'}
-                    </button>
-
-                    <div style={{ textAlign: 'center', margin: '1rem 0', color: 'var(--text-muted)', fontSize: '0.875rem' }}>OR</div>
 
                     <button
-                        type="button"
-                        onClick={handleGoogleLogin}
                         disabled={loading}
-                        className="btn btn-secondary w-full"
-                        style={{ display: 'flex', gap: '0.5rem' }}
+                        type="submit"
+                        className="auth-modal-submit"
                     >
-                        <FaGoogle /> Continue with Google
+                        {loading ? 'Signing in...' : 'Sign in'}
                     </button>
 
-                    <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.875rem' }}>
-                        Don't have an account? <Link to="/signup" style={{ color: 'var(--primary-color)', fontWeight: 500 }}>Sign Up</Link>
+                    <div className="auth-modal-divider">
+                        <span>OR SIGN IN WITH</span>
                     </div>
+
+                    <div className="auth-modal-social">
+                        <button
+                            type="button"
+                            onClick={handleGoogleLogin}
+                            disabled={loading}
+                            className="auth-modal-social-btn"
+                        >
+                            <FaGoogle />
+                        </button>
+                    </div>
+
+                    <p className="auth-modal-terms">
+                        By signing in, you agree to our Terms & Service
+                    </p>
                 </form>
             </div>
         </div>

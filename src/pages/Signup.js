@@ -1,17 +1,17 @@
 
 import { useState } from 'react';
-import { FaGoogle } from 'react-icons/fa';
+import { FaGoogle, FaTimes } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import PasswordInput from '../components/PasswordInput';
-import '../index.css';
+import '../styles/Auth.css';
 
 const Signup = () => {
-    const [name, setName] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [mobile, setMobile] = useState('');
     const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -26,10 +26,6 @@ const Signup = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (password !== confirmPassword) {
-            return setError('Passwords do not match');
-        }
-
         const pwdMsg = validatePassword(password);
         if (pwdMsg) {
             return setError(pwdMsg);
@@ -38,9 +34,9 @@ const Signup = () => {
         try {
             setError('');
             setLoading(true);
-            await signup(email, password, name, mobile);
+            const fullName = `${firstName} ${lastName}`.trim();
+            await signup(email, password, fullName, mobile);
             navigate('/dashboard', { replace: true });
-
         } catch (err) {
             console.error("Signup failed:", err);
             let msg = 'Failed to create an account.';
@@ -65,79 +61,101 @@ const Signup = () => {
     };
 
     return (
-        <div style={{ maxWidth: '450px', margin: '4rem auto', padding: '0 1rem' }}>
-            <div className="card">
-                <h2 className="text-center" style={{ marginBottom: '2rem' }}>Create Account</h2>
-                {error && <div style={{ background: '#fee2e2', color: '#991b1b', padding: '0.75rem', borderRadius: 'var(--radius)', marginBottom: '1rem', fontSize: '0.875rem' }}>{error}</div>}
+        <div className="auth-modal-overlay">
+            <div className="auth-modal-container">
+                <Link to="/" className="auth-modal-close">
+                    <FaTimes />
+                </Link>
 
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label className="form-label">Full Name</label>
+                <div className="auth-tabs">
+                    <div className="auth-tab auth-tab-active">
+                        Sign up
+                    </div>
+                    <Link to="/login" className="auth-tab">
+                        Sign in
+                    </Link>
+                </div>
+
+                <h2 className="auth-modal-title">Create an account</h2>
+
+                {error && (
+                    <div className="auth-modal-error">
+                        {error}
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="auth-modal-form">
+                    <div className="auth-modal-row">
                         <input
                             type="text"
-                            className="form-input"
+                            className="auth-modal-input"
                             required
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="John Doe"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            placeholder="First name"
                         />
-                    </div>
-                    <div className="form-group">
-                        <label className="form-label">Email</label>
                         <input
-                            type="email"
-                            className="form-input"
+                            type="text"
+                            className="auth-modal-input"
                             required
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="you@example.com"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            placeholder="Last name"
                         />
                     </div>
-                    <div className="form-group">
-                        <label className="form-label">Mobile Number</label>
-                        <input
-                            type="tel"
-                            className="form-input"
-                            required
-                            value={mobile}
-                            onChange={(e) => setMobile(e.target.value)}
-                            pattern="[0-9]{10}"
-                            placeholder="10-digit mobile number"
-                        />
-                    </div>
+
+                    <input
+                        type="email"
+                        className="auth-modal-input"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter your email"
+                    />
+
+                    <input
+                        type="tel"
+                        className="auth-modal-input"
+                        required
+                        value={mobile}
+                        onChange={(e) => setMobile(e.target.value)}
+                        placeholder="Mobile number"
+                        pattern="[0-9]{10}"
+                    />
+
                     <PasswordInput
-                        label="Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        placeholder="••••••••"
+                        placeholder="Create a password"
                     />
-                    <PasswordInput
-                        label="Confirm Password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                        placeholder="••••••••"
-                    />
-                    <button disabled={loading} type="submit" className="btn btn-primary w-full" style={{ marginBottom: '1rem' }}>
-                        {loading ? 'Creating Account...' : 'Sign Up'}
-                    </button>
-
-                    <div style={{ textAlign: 'center', margin: '1rem 0', color: 'var(--text-muted)', fontSize: '0.875rem' }}>OR</div>
 
                     <button
-                        type="button"
-                        onClick={handleGoogleLogin}
                         disabled={loading}
-                        className="btn btn-secondary w-full"
-                        style={{ display: 'flex', gap: '0.5rem' }}
+                        type="submit"
+                        className="auth-modal-submit"
                     >
-                        <FaGoogle /> Continue with Google
+                        {loading ? 'Creating account...' : 'Create an account'}
                     </button>
 
-                    <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.875rem' }}>
-                        Already have an account? <Link to="/login" style={{ color: 'var(--primary-color)', fontWeight: 500 }}>Log In</Link>
+                    <div className="auth-modal-divider">
+                        <span>OR SIGN UP WITH</span>
                     </div>
+
+                    <div className="auth-modal-social">
+                        <button
+                            type="button"
+                            onClick={handleGoogleLogin}
+                            disabled={loading}
+                            className="auth-modal-social-btn"
+                        >
+                            <FaGoogle />
+                        </button>
+                    </div>
+
+                    <p className="auth-modal-terms">
+                        By creating an account, you agree to our Terms & Service
+                    </p>
                 </form>
             </div>
         </div>

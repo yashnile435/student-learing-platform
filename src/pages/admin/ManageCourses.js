@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { FaBook, FaTag, FaLayerGroup, FaEdit, FaTrash } from 'react-icons/fa';
 import { collection, deleteDoc, doc, getDocs, writeBatch } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { db } from '../../firebase';
@@ -61,47 +62,90 @@ const ManageCourses = () => {
             {loading && <p>Loading...</p>}
 
             {!loading && coursesList.length === 0 ? <p>No courses found.</p> : (
-                <div className="table-container card" style={{ padding: 0 }}>
-                    <table className="table">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Type</th>
-                                <th>Lessons</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                <>
+                    {/* Desktop Table View */}
+                    <div className="table-container card hide-mobile" style={{ padding: 0 }}>
+                        <table className="table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Type</th>
+                                    <th>Lessons</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {coursesList.map(course => (
+                                    <tr key={course.id}>
+                                        <td>
+                                            <div style={{ fontWeight: 600 }}>{course.title}</div>
+                                        </td>
+                                        <td>
+                                            <span className={`badge ${course.isFree ? 'badge-free' : 'badge-paid'}`}>
+                                                {course.isFree ? 'FREE' : 'PAID'}
+                                            </span>
+                                        </td>
+                                        <td>{course.totalLessons || 0}</td>
+                                        <td style={{ display: 'flex', gap: '0.5rem' }}>
+                                            <button
+                                                onClick={() => navigate('/admin/edit', { state: { courseId: course.id } })}
+                                                className="btn btn-primary"
+                                                style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', display: 'flex', alignItems: 'center', gap: '5px' }}
+                                            >
+                                                <FaEdit /> Edit
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteCourse(course.id)}
+                                                className="btn btn-danger"
+                                                style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', display: 'flex', alignItems: 'center', gap: '5px' }}
+                                            >
+                                                <FaTrash /> Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="show-mobile">
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             {coursesList.map(course => (
-                                <tr key={course.id}>
-                                    <td>{course.title}</td>
-                                    <td>
-                                        <span className={`badge ${course.isFree ? 'badge-free' : 'badge-paid'}`}>
-                                            {course.isFree ? 'FREE' : 'PAID'}
-                                        </span>
-                                    </td>
-                                    <td>{course.totalLessons || 0}</td>
-                                    <td style={{ display: 'flex', gap: '0.5rem' }}>
+                                <div key={course.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                    <div>
+                                        <div style={{ fontWeight: 600, fontSize: '1.1rem', marginBottom: '0.5rem' }}>{course.title}</div>
+                                        <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem' }}>
+                                            <span className={`badge ${course.isFree ? 'badge-free' : 'badge-paid'}`}>
+                                                {course.isFree ? 'FREE' : 'PAID'}
+                                            </span>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--text-muted)' }}>
+                                                <FaLayerGroup /> {course.totalLessons || 0} Lessons
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ display: 'flex', gap: '0.75rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
                                         <button
                                             onClick={() => navigate('/admin/edit', { state: { courseId: course.id } })}
                                             className="btn btn-primary"
-                                            style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                                            style={{ flex: 1, justifyContent: 'center', display: 'flex', alignItems: 'center', gap: '5px' }}
                                         >
-                                            Edit
+                                            <FaEdit /> Edit
                                         </button>
                                         <button
                                             onClick={() => handleDeleteCourse(course.id)}
                                             className="btn btn-danger"
-                                            style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                                            style={{ flex: 1, justifyContent: 'center', display: 'flex', alignItems: 'center', gap: '5px' }}
                                         >
-                                            Delete
+                                            <FaTrash /> Delete
                                         </button>
-                                    </td>
-                                </tr>
+                                    </div>
+                                </div>
                             ))}
-                        </tbody>
-                    </table>
-                </div>
+                        </div>
+                    </div>
+                </>
             )}
         </div>
     );

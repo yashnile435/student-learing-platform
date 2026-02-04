@@ -24,6 +24,7 @@ const Dashboard = () => {
     const [selectedVideo, setSelectedVideo] = useState(null);
     const [activeCourseProgress, setActiveCourseProgress] = useState({ completedLessonIds: [] });
     const [paymentHistory, setPaymentHistory] = useState([]);
+    const [paymentLoading, setPaymentLoading] = useState(false);
 
     // Fetch Data Logic
     useEffect(() => {
@@ -66,11 +67,15 @@ const Dashboard = () => {
                         setCourses([]);
                     }
 
-                    // 3. Fetch Payment History
-                    if (user) {
-                        const payments = await getUserPayments(user.uid);
-                        setPaymentHistory(payments);
-                    }
+                }
+
+                // 3. Fetch Payment History (Non-blocking)
+                if (user) {
+                    setPaymentLoading(true);
+                    getUserPayments(user.uid)
+                        .then(setPaymentHistory)
+                        .catch(err => console.error(err))
+                        .finally(() => setPaymentLoading(false));
                 }
             } catch (err) {
                 console.error("Error fetching data:", err);
@@ -202,7 +207,9 @@ const Dashboard = () => {
             {/* Payment History Section */}
             <div style={{ marginTop: '4rem' }}>
                 <h2 className="mb-3">Payment History</h2>
-                {paymentHistory.length === 0 ? (
+                {paymentLoading ? (
+                    <div className="card p-3 text-center text-muted">Loading payments...</div>
+                ) : paymentHistory.length === 0 ? (
                     <div className="card p-3 text-center text-muted">
                         No payments found.
                     </div>

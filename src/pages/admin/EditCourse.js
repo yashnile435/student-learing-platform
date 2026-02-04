@@ -231,7 +231,7 @@ const EditCourse = () => {
                 ) : (
                     <div className="courses-grid" style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))',
                         gap: '1.5rem'
                     }}>
                         {coursesList.map(course => (
@@ -379,7 +379,7 @@ const EditCourse = () => {
                     </div>
                 </div>
 
-                <div className="flex" style={{ gap: '2rem' }}>
+                <div className="flex" style={{ gap: '2rem', flexWrap: 'wrap' }}>
                     {!courseIsFree && (
                         <div className="form-group" style={{ flex: 1 }}>
                             <label className="form-label">Price (₹)</label>

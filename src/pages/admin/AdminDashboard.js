@@ -38,11 +38,14 @@ const AdminDashboard = () => {
                     const snap = await getCountFromServer(q);
                     setStats(prev => ({ ...prev, teacherCourses: snap.data().count }));
                 } else {
-                    // Admin View Stats
-                    const studentsSnap = await getCountFromServer(query(collection(db, 'users'), where('role', '==', 'student')));
-                    const adminsSnap = await getCountFromServer(query(collection(db, 'users'), where('role', '==', 'admin')));
-                    const teachersSnap = await getCountFromServer(query(collection(db, 'users'), where('role', '==', 'teacher')));
-                    const coursesSnap = await getCountFromServer(collection(db, 'courses'));
+                    // Admin View Stats - Parallel Fetching
+                    const [studentsSnap, adminsSnap, teachersSnap, coursesSnap, allPayments] = await Promise.all([
+                        getCountFromServer(query(collection(db, 'users'), where('role', '==', 'student'))),
+                        getCountFromServer(query(collection(db, 'users'), where('role', '==', 'admin'))),
+                        getCountFromServer(query(collection(db, 'users'), where('role', '==', 'teacher'))),
+                        getCountFromServer(collection(db, 'courses')),
+                        getAllPayments()
+                    ]);
 
                     setStats({
                         totalStudents: studentsSnap.data().count,
@@ -51,9 +54,6 @@ const AdminDashboard = () => {
                         totalCourses: coursesSnap.data().count,
                         teacherCourses: 0
                     });
-
-                    // Fetch All Payments for Analytics
-                    const allPayments = await getAllPayments();
 
                     // Filter pending specifically for 'submitted' status
                     const pendingRequests = allPayments.filter(p => p.status === 'submitted');
@@ -208,7 +208,7 @@ const AdminDashboard = () => {
 
             {/* Pending Payments Alert */}
             {pendingPayments.length > 0 && (
-                <div style={{ marginTop: '2rem', marginBottom: '2rem', background: '#fff7ed', border: '1px solid #ffedd5', padding: '1.5rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ marginTop: '2rem', marginBottom: '2rem', background: '#fff7ed', border: '1px solid #ffedd5', padding: '1.5rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                     <div>
                         <h2 style={{ margin: 0, color: '#c2410c', fontSize: '1.25rem' }}>Pending Payments</h2>
                         <p style={{ margin: '0.5rem 0 0', color: '#9a3412' }}>

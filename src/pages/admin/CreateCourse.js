@@ -83,65 +83,86 @@ const CreateCourse = () => {
 
         } catch (error) {
             console.error("Error creating course:", error);
-            setMessage('Error creating course.');
+            const errStr = error.toString();
+            if (errStr.includes('offline') || errStr.includes('network') || errStr.includes('fetch')) {
+                setMessage('Network Error: Database connection failed. Please check your Ad Blocker or Internet connection.');
+            } else {
+                setMessage('Error creating course: ' + (error.message || 'Unknown error'));
+            }
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <form onSubmit={handleCreateCourse}>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
             <h1 className="mb-4">Create New Course</h1>
             {message && <div className={`alert ${message.includes('Error') ? 'alert-danger' : 'alert-success'}`}>{message}</div>}
 
-            <div className="form-group">
-                <label className="form-label">Course Title</label>
-                <input className="form-input" value={courseTitle} onChange={e => setCourseTitle(e.target.value)} required />
-            </div>
-            <div className="form-group">
-                <label className="form-label">Description</label>
-                <textarea className="form-input" value={courseDesc} onChange={e => setCourseDesc(e.target.value)} required />
-            </div>
+            <div className="card admin-card">
+                <form onSubmit={handleCreateCourse} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1.5rem' }}>
 
-            <div className="form-group">
-                <label className="form-label">Assign Teacher (Optional)</label>
-                <select
-                    className="form-input"
-                    value={selectedTeacher}
-                    onChange={e => setSelectedTeacher(e.target.value)}
-                >
-                    <option value="">-- Select a Teacher --</option>
-                    {teachers.map(t => (
-                        <option key={t.id} value={t.id}>{t.name} ({t.email})</option>
-                    ))}
-                </select>
+                    <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                        <label className="form-label">Course Title</label>
+                        <input className="form-input" value={courseTitle} onChange={e => setCourseTitle(e.target.value)} required placeholder="e.g. Master React JS" />
+                    </div>
+
+                    <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                        <label className="form-label">Description</label>
+                        <textarea className="form-input" style={{ minHeight: '100px' }} value={courseDesc} onChange={e => setCourseDesc(e.target.value)} required placeholder="What will students learn?" />
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Assign Teacher (Optional)</label>
+                        <select
+                            className="form-input"
+                            value={selectedTeacher}
+                            onChange={e => setSelectedTeacher(e.target.value)}
+                        >
+                            <option value="">-- Select a Teacher --</option>
+                            {teachers.map(t => (
+                                <option key={t.id} value={t.id}>{t.name} ({t.email})</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Price (₹)</label>
+                        <input
+                            type="number"
+                            className="form-input"
+                            value={coursePrice}
+                            onChange={e => setCoursePrice(e.target.value)}
+                            disabled={courseIsFree}
+                            placeholder={courseIsFree ? 'Free' : '0.00'}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Thumbnail URL</label>
+                        <input className="form-input" value={courseThumbnail} onChange={e => setCourseThumbnail(e.target.value)} placeholder="https://..." />
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Intro Video ID (Youtube)</label>
+                        <input className="form-input" value={courseVideoId} onChange={handleVideoIdChange} placeholder="e.g. dQw4w9WgXcQ" />
+                    </div>
+
+                    {/* Checkbox and Button Full Width */}
+                    <div className="form-group checkbox-group" style={{ gridColumn: '1 / -1', marginTop: '0.5rem' }}>
+                        <input type="checkbox" id="isFree" checked={courseIsFree} onChange={e => setCourseIsFree(e.target.checked)} />
+                        <label htmlFor="isFree" style={{ fontWeight: 600 }}>Is this a Free Course?</label>
+                    </div>
+
+                    <div style={{ gridColumn: '1 / -1', marginTop: '1rem' }}>
+                        <button type="submit" className="btn btn-primary w-full" disabled={loading} style={{ padding: '0.75rem', fontSize: '1rem' }}>
+                            {loading ? 'Creating Course...' : 'Create Course'}
+                        </button>
+                    </div>
+
+                </form>
             </div>
-
-            <div className="form-group">
-                <label className="form-label">Thumbnail URL</label>
-                <input className="form-input" value={courseThumbnail} onChange={e => setCourseThumbnail(e.target.value)} placeholder="https://..." />
-            </div>
-
-            <div className="form-group">
-                <label className="form-label">Intro Video ID (Youtube)</label>
-                <input className="form-input" value={courseVideoId} onChange={handleVideoIdChange} placeholder="e.g. dQw4w9WgXcQ or Full URL" />
-                <small style={{ color: '#666' }}>Used for preview thumbnail if Custom Thumbnail is empty.</small>
-            </div>
-
-            {!courseIsFree && (
-                <div className="form-group">
-                    <label className="form-label">Price (₹)</label>
-                    <input type="number" className="form-input" value={coursePrice} onChange={e => setCoursePrice(e.target.value)} />
-                </div>
-            )}
-
-            <div className="form-group checkbox-group">
-                <input type="checkbox" id="isFree" checked={courseIsFree} onChange={e => setCourseIsFree(e.target.checked)} />
-                <label htmlFor="isFree">Is Free Course?</label>
-            </div>
-
-            <button type="submit" className="btn btn-primary" disabled={loading}>{loading ? 'Creating...' : 'Create Course'}</button>
-        </form>
+        </div>
     );
 };
 
