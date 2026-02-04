@@ -81,6 +81,7 @@ service cloud.firestore {
       }
     }
 
+
     /* ────────────────
        Purchases Collection
        ──────────────── */
@@ -98,6 +99,18 @@ service cloud.firestore {
 
       // Only admin (or backend via Admin SDK) can update purchase status
       allow update, delete: if isAdmin();
+    }
+
+    /* ────────────────
+       Payment Requests Collection (Manual QR)
+       ──────────────── */
+    match /paymentRequests/{requestId} {
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == "pending";
+      
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow update: if isAdmin();
     }
 
   }

@@ -55,8 +55,9 @@ const PublicLayout = () => {
                         <Link to="/dashboard" className="btn btn-primary">Dashboard</Link>
                     ) : (
                         <>
-                            <Link to="/login" style={{ fontWeight: 500 }}>Login</Link>
-                            <Link to="/signup" className="btn btn-primary">Get Started</Link>
+                            {location.pathname !== '/login' && (
+                                <Link to="/login" style={{ fontWeight: 500 }}>Login</Link>
+                            )}
                         </>
                     )}
                 </div>
@@ -141,19 +142,21 @@ const PublicLayout = () => {
                                     <FaUser /> Go to Dashboard
                                 </Link>
                             ) : (
-                                <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="btn btn-primary" style={{
-                                    width: '100%',
-                                    textAlign: 'center',
-                                    padding: '1rem',
-                                    fontSize: '1.1rem',
-                                    borderRadius: '50px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '0.5rem'
-                                }}>
-                                    <FaUser /> Login
-                                </Link>
+                                location.pathname !== '/login' && (
+                                    <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="btn btn-primary" style={{
+                                        width: '100%',
+                                        textAlign: 'center',
+                                        padding: '1rem',
+                                        fontSize: '1.1rem',
+                                        borderRadius: '50px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '0.5rem'
+                                    }}>
+                                        <FaUser /> Login
+                                    </Link>
+                                )
                             )}
                         </div>
                     </div>

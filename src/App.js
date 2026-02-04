@@ -12,7 +12,6 @@ import Home from './pages/Home';
 import Courses from './pages/Courses';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
-import Checkout from './pages/Checkout';
 
 // Authenticated Pages
 import Dashboard from './pages/Dashboard';
@@ -46,7 +45,6 @@ function App() {
               path="/signup"
               element={<PublicRoute><Signup /></PublicRoute>}
             />
-            <Route path="/checkout" element={<Checkout />} />
           </Route>
 
           {/* Student Routes - using DashboardLayout */}
