@@ -213,7 +213,7 @@ const Home = () => {
                         <div style={{ textAlign: 'left' }}>
                             <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-main)' }}>Connect With Us</h3>
                             <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
-                                <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" style={{
+                                <a href="https://wa.me/+919834045262?text=Contact%20admin" alt="Whatsapp" target="_blank" rel="noopener noreferrer" style={{
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                     width: '50px', height: '50px', borderRadius: '50%',
                                     background: '#dcfce7', color: '#16a34a', fontSize: '1.5rem'
