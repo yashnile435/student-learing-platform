@@ -20,6 +20,11 @@ service cloud.firestore {
           .data.role == "admin";
     }
 
+    function isCourseTeacher(courseId) {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/courses/$(courseId)).data.teacherId == request.auth.uid;
+    }
+
     function hasPurchased(courseId) {
       return isSignedIn() &&
         courseId in
@@ -57,8 +62,11 @@ service cloud.firestore {
       // Everyone can read course metadata (Public Catalog)
       allow read: if true;
 
-      // Only admin can create/update/delete courses
-      allow write: if isAdmin();
+      // Admin can do anything
+      allow create, delete: if isAdmin();
+      
+      // Admin OR Assigned Teacher can update (e.g. lesson counts)
+      allow update: if isAdmin() || (isSignedIn() && resource.data.teacherId == request.auth.uid);
 
       /* ─────────────────────────
          Lessons Subcollection
@@ -68,16 +76,18 @@ service cloud.firestore {
       match /lessons/{lessonId} {
         // Read logic:
         // - Admin can read
+        // - Teacher of the course can read
         // - OR course is free
         // - OR user has purchased the course
         allow read: if
           isAdmin() ||
+          isCourseTeacher(courseId) ||
           get(/databases/$(database)/documents/courses/$(courseId))
             .data.isFree == true ||
           hasPurchased(courseId);
 
-        // Only admin can manage lessons
-        allow write: if isAdmin();
+        // Admin OR Assigned Teacher can manage lessons
+        allow write: if isAdmin() || isCourseTeacher(courseId);
       }
     }
 

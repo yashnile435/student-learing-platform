@@ -205,7 +205,7 @@ const Home = () => {
                         <div style={{ textAlign: 'left' }}>
                             <h2 style={{ color: 'var(--primary-color)', marginBottom: '1rem' }}>YaTi Learning</h2>
                             <p style={{ color: 'var(--text-muted)', lineHeight: '1.6', maxWidth: '300px' }}>
-                                Empowering students with world-class education and practical skills. Join our community and shaope your future today.
+                                Empowering students with world-class education and practical skills. Join our community and shape your future today.
                             </p>
                         </div>
 

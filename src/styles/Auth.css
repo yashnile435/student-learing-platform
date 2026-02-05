@@ -266,7 +266,8 @@
 .auth-modal-social-btn {
     width: 100%;
     /* Full width for better mobile touch */
-    height: 48px;
+    min-height: 44px;
+    padding: 0.5rem 1rem;
     background: white;
     border: 1px solid var(--border-color);
     border-radius: 12px;
@@ -276,9 +277,11 @@
     cursor: pointer;
     transition: all 0.2s ease;
     color: var(--text-main);
-    font-size: 1.25rem;
-    /* Icon size */
-    max-width: 200px;
+    font-size: 1rem;
+    font-weight: 500;
+    max-width: 100%;
+    gap: 0.75rem;
+    position: relative;
 }
 
 .auth-modal-social-btn:hover:not(:disabled) {
@@ -289,8 +292,8 @@
 }
 
 .auth-modal-social-btn svg {
-    color: #EA4335;
-    /* Google Red */
+    /* Ensure SVGs don't collapse */
+    flex-shrink: 0;
 }
 
 /* Terms */
