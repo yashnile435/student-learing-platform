@@ -149,7 +149,7 @@ export const submitManualPayment = async (paymentData) => {
             amount: paymentData.amount,
 
             // Critical fields
-            transactionId: paymentData.transactionId,
+            utrNumber: paymentData.utrNumber,
             paymentMethod: 'QR', // Requirement
 
             status: 'submitted',

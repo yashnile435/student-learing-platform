@@ -19,7 +19,7 @@ const Courses = () => {
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [paymentStatus, setPaymentStatus] = useState('initial'); // initial, processing, success, error
     const [paymentError, setPaymentError] = useState('');
-    const [transactionId, setTransactionId] = useState('');
+    const [utrNumber, setUtrNumber] = useState('');
 
     const { user, userData } = useAuth();
     const navigate = useNavigate();
@@ -108,7 +108,7 @@ const Courses = () => {
                 courseName: selectedCourse.title,
                 amount: selectedCourse.price,
                 screenshotUrl: null,
-                transactionId: transactionId.trim()
+                utrNumber: utrNumber.trim()
             });
 
             setPaymentStatus('success');
@@ -130,7 +130,7 @@ const Courses = () => {
         setShowPaymentModal(false);
         setSelectedCourse(null);
         setPaymentStatus('initial');
-        setTransactionId('');
+        setUtrNumber('');
     };
 
     useEffect(() => {
@@ -243,22 +243,22 @@ const Courses = () => {
                                     </p>
                                 </div>
 
-                                {/* Transaction ID Input */}
+                                {/* UTR Number Input */}
                                 <div style={{ marginBottom: '1.5rem' }}>
                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
-                                        Transaction ID <span style={{ color: 'red' }}>*</span>
+                                        UTR Number <span style={{ color: 'red' }}>*</span>
                                     </label>
                                     <input
                                         type="text"
                                         className="form-input"
-                                        placeholder="Enter UPI Transaction ID"
-                                        value={transactionId}
-                                        onChange={(e) => setTransactionId(e.target.value)}
+                                        placeholder="Enter UPI UTR Number"
+                                        value={utrNumber}
+                                        onChange={(e) => setUtrNumber(e.target.value)}
                                         required
                                         style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd' }}
                                     />
                                     <small style={{ color: '#666', fontSize: '0.85rem' }}>
-                                        Enter the transaction ID from your payment app
+                                        Enter the UTR number from your payment app
                                     </small>
                                 </div>
 
@@ -268,15 +268,15 @@ const Courses = () => {
                                 <button
                                     onClick={handlePaymentSubmit}
                                     className="btn btn-primary full-width"
-                                    disabled={!transactionId.trim()}
-                                    style={{ opacity: (!transactionId.trim()) ? 0.5 : 1 }}
+                                    disabled={!utrNumber.trim()}
+                                    style={{ opacity: (!utrNumber.trim()) ? 0.5 : 1 }}
                                 >
                                     Submit Payment
                                 </button>
 
-                                {(!transactionId.trim()) && (
+                                {(!utrNumber.trim()) && (
                                     <p style={{ textAlign: 'center', fontSize: '0.85rem', color: '#999', marginTop: '0.5rem' }}>
-                                        Please enter transaction ID
+                                        Please enter UTR number
                                     </p>
                                 )}
                             </div>

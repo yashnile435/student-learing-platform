@@ -204,7 +204,7 @@ const ReceivedPayments = () => {
                             <thead>
                                 <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                                     <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 600 }}>Student details</th>
-                                    <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 600 }}>Course & Transaction</th>
+                                    <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 600 }}>Course & UTR Number</th>
                                     <th style={{ padding: '1rem', textAlign: 'center', fontWeight: 600 }}>Status</th>
                                     <th style={{ padding: '1rem', textAlign: 'center', fontWeight: 600 }}>Actions</th>
                                 </tr>
@@ -222,7 +222,7 @@ const ReceivedPayments = () => {
                                         <td style={{ padding: '1rem' }}>
                                             <div style={{ fontWeight: 500, marginBottom: '0.5rem' }}>{payment.courseName}</div>
                                             <div style={{ fontFamily: 'monospace', background: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px', fontSize: '0.875rem', display: 'inline-block' }}>
-                                                {payment.transactionId || 'N/A'}
+                                                {payment.utrNumber || 'N/A'}
                                             </div>
                                             <div style={{ fontWeight: 600, color: 'var(--primary-color)', marginTop: '0.5rem' }}>₹{payment.amount}</div>
                                         </td>
@@ -256,7 +256,7 @@ const ReceivedPayments = () => {
                                         <div style={{ fontWeight: 600, marginBottom: '0.5rem' }}>{payment.courseName}</div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <span style={{ fontFamily: 'monospace', fontSize: '0.8rem', background: '#e2e8f0', padding: '2px 6px', borderRadius: '4px' }}>
-                                                {payment.transactionId}
+                                                {payment.utrNumber}
                                             </span>
                                             <span style={{ fontWeight: 700, color: 'var(--primary-color)' }}>₹{payment.amount}</span>
                                         </div>

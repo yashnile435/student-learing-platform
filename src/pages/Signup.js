@@ -12,6 +12,7 @@ const Signup = () => {
     const [email, setEmail] = useState('');
     const [mobile, setMobile] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -29,6 +30,10 @@ const Signup = () => {
         const pwdMsg = validatePassword(password);
         if (pwdMsg) {
             return setError(pwdMsg);
+        }
+
+        if (password !== confirmPassword) {
+            return setError('Passwords do not match.');
         }
 
         try {
@@ -128,6 +133,13 @@ const Signup = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         placeholder="Create a password"
+                    />
+
+                    <PasswordInput
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                        placeholder="Confirm password"
                     />
 
                     <button
