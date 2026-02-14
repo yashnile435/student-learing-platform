@@ -11,7 +11,7 @@ import { getStorage } from "firebase/storage";
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
     apiKey: "AIzaSyBq2hwZQDp-WGVlxL176K4GBwaftoTqs4M",
-    authDomain: "yatilearningplatform.netlify.app",
+    authDomain: "learning-platform-e12be.firebaseapp.com",
     projectId: "learning-platform-e12be",
     storageBucket: "learning-platform-e12be.firebasestorage.app",
     messagingSenderId: "759606649035",
