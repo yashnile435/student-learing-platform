@@ -2,8 +2,8 @@ import { initializeApp } from "firebase/app";
 import { createUserWithEmailAndPassword, getAuth, updateProfile, signOut } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { useState } from "react";
-import { db } from "../../firebase";
-import PasswordInput from "../../components/PasswordInput";
+import { db } from "../../firebase/config";
+import PasswordInput from "../../components/common/PasswordInput";
 
 // Re-use config to create a secondary app instance
 const firebaseConfig = {

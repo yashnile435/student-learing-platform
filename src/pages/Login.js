@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import PasswordInput from '../components/PasswordInput';
-import { db } from '../firebase';
+import PasswordInput from '../components/common/PasswordInput';
+import { db } from '../firebase/config';
 import '../styles/Auth.css';
 
 const Login = () => {

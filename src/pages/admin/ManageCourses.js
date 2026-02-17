@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaBook, FaTag, FaLayerGroup, FaEdit, FaTrash } from 'react-icons/fa';
 import { collection, deleteDoc, doc, getDocs, writeBatch } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
-import { db } from '../../firebase';
+import { db } from '../../firebase/config';
 import '../../index.css';
 
 const ManageCourses = () => {

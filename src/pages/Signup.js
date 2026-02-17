@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import PasswordInput from '../components/PasswordInput';
+import PasswordInput from '../components/common/PasswordInput';
 import '../styles/Auth.css';
 
 const Signup = () => {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FaCheck, FaTimes, FaImage, FaKey, FaShieldAlt } from 'react-icons/fa';
-import { getPendingPayments, verifyManualPayment, grantAccessManualPayment, rejectManualPayment } from '../../services/paymentService';
+import { getPendingPayments, verifyManualPayment, grantAccessManualPayment, rejectManualPayment } from '../../utils/paymentService';
 import '../../index.css';
 
 const ReceivedPayments = () => {

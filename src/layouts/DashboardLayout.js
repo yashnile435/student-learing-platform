@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { FaHome, FaBook, FaUsers, FaChartBar, FaPlus, FaSignOutAlt, FaUser, FaChalkboardTeacher, FaBars, FaTimes, FaEnvelope } from 'react-icons/fa';
+import { FaHome, FaBook, FaUsers, FaChartBar, FaPlus, FaSignOutAlt, FaUser, FaChalkboardTeacher, FaBars, FaTimes, FaEnvelope, FaTrash, FaEdit } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import '../index.css';
 
@@ -37,6 +37,7 @@ const DashboardLayout = () => {
                 { path: '/admin/create-teacher', icon: <FaChalkboardTeacher />, label: 'Create Teacher' },
                 { path: '/admin/received-payments', icon: <FaChartBar />, label: 'Received Payments' },
                 { path: '/admin/reports', icon: <FaChartBar />, label: 'Reports' },
+                { path: '/admin/delete-lessons', icon: <FaEdit />, label: 'Edit Lesson' },
                 { path: '/profile', icon: <FaUser />, label: 'My Profile' },
             ];
         } else if (userRole === 'teacher') {
@@ -44,6 +45,7 @@ const DashboardLayout = () => {
                 { path: '/admin', icon: <FaHome />, label: 'Dashboard', end: true },
                 { path: '/admin/edit', icon: <FaBook />, label: 'My Courses' },
                 { path: '/admin/add-lesson', icon: <FaPlus />, label: 'Add Lesson' },
+                { path: '/admin/delete-lessons', icon: <FaEdit />, label: 'Edit Lesson' },
                 { path: '/profile', icon: <FaUser />, label: 'My Profile' },
             ];
         } else {

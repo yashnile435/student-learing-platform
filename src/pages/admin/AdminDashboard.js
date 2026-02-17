@@ -2,9 +2,9 @@ import { collection, getCountFromServer, query, where } from 'firebase/firestore
 import { useEffect, useState } from 'react';
 import { FaUserGraduate, FaUserShield, FaBook, FaChalkboardTeacher, FaPlus, FaEdit, FaChartBar, FaCheck, FaTimes, FaRupeeSign } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { db } from '../../firebase';
+import { db } from '../../firebase/config';
 import { useAuth } from '../../context/AuthContext';
-import { getAllPayments } from '../../services/paymentService';
+import { getAllPayments } from '../../utils/paymentService';
 import '../../index.css';
 
 const AdminDashboard = () => {

@@ -8,8 +8,8 @@ import {
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { createContext, useContext, useEffect, useState } from 'react';
-import Loading from '../components/Loading';
-import { auth, db, googleProvider } from '../firebase';
+import Loading from '../components/common/Loading';
+import { auth, db, googleProvider } from '../firebase/config';
 
 const AuthContext = createContext();
 
