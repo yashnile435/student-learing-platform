@@ -1,4 +1,4 @@
-import { arrayUnion, collection, doc, increment, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
+import { arrayUnion, collection, doc, increment, onSnapshot, serverTimestamp, setDoc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
 /**
@@ -9,30 +9,45 @@ import { db } from '../firebase/config';
 const ProgressService = {
     /**
      * Mark a lesson (video) as completed
-     * @param {string} userId 
-     * @param {string} courseId 
-     * @param {string} lessonId 
+     * Recalculates progress percentage automatically if totalLessons is provided
      */
-    markLessonComplete: async (userId, courseId, lessonId) => {
+    markLessonComplete: async (userId, courseId, lessonId, totalLessons = 0) => {
         try {
-            // Reference to the specific course progress document in sub-collection
             const progressRef = doc(db, 'users', userId, 'progress', courseId);
 
-            // Atomic update to add lessonId to array
-            await setDoc(progressRef, {
+            // 1. Get current data to check if already completed (optimization)
+            const docSnap = await getDoc(progressRef);
+            let currentCompleted = [];
+            if (docSnap.exists()) {
+                currentCompleted = docSnap.data().completedLessonIds || [];
+                if (currentCompleted.includes(lessonId)) return; // Already completed
+            }
+
+            const newCompletedCount = currentCompleted.length + 1;
+
+            // 2. Calculate Percentage
+            let percentage = 0;
+            if (totalLessons > 0) {
+                percentage = Math.min(Math.round((newCompletedCount / totalLessons) * 100), 100);
+            }
+
+            // 3. Update Firestore
+            const updateData = {
                 courseId: courseId,
                 completedLessonIds: arrayUnion(lessonId),
-                lastUpdated: serverTimestamp()
-            }, { merge: true });
+                lastUpdated: serverTimestamp(),
+                progressPercentage: percentage,
+                totalLessons: totalLessons // Keep this synced
+            };
 
-            // Analytics: Increment global popularity counter on the Course Document
+            await setDoc(progressRef, updateData, { merge: true });
+
+            // 4. Analytics: Increment global popularity counter
             if (courseId && courseId !== 'general') {
                 const courseRef = doc(db, 'courses', courseId);
-                // We use updateDoc safely; if course doesn't exist, this might fail, hence the try/catch block is good.
-                // We use 'increment(1)' to avoid race conditions.
                 await updateDoc(courseRef, {
                     popularity: increment(1)
-                });
+                }).catch(e => console.log("Analytics update skipped", e));
             }
 
             return true;
@@ -43,11 +58,25 @@ const ProgressService = {
     },
 
     /**
+     * Increment watch count for a specific lesson
+     */
+    incrementWatchCount: async (userId, courseId, lessonId) => {
+        try {
+            const progressRef = doc(db, 'users', userId, 'progress', courseId);
+            // Use dot notation for nested map update: videoWatchCount.{lessonId}
+            const fieldPath = `videoWatchCount.${lessonId}`;
+
+            await setDoc(progressRef, {
+                [fieldPath]: increment(1),
+                lastPlayed: serverTimestamp()
+            }, { merge: true });
+        } catch (error) {
+            console.error("Error incrementing watch count:", error);
+        }
+    },
+
+    /**
      * Subscribe to a specific course's progress
-     * @param {string} userId 
-     * @param {string} courseId 
-     * @param {function} callback 
-     * @returns {function} Unsubscribe
      */
     subscribeToCourseProgress: (userId, courseId, callback) => {
         const progressRef = doc(db, 'users', userId, 'progress', courseId);
@@ -55,40 +84,48 @@ const ProgressService = {
             if (docSnap.exists()) {
                 callback(docSnap.data());
             } else {
-                callback({ completedLessonIds: [] });
+                callback({ completedLessonIds: [], videoWatchCount: {}, progressPercentage: 0 });
             }
         });
     },
 
     /**
-     * Subscribe to ALL progress (Adapter for Dashboard)
-     * Maps the new sub-collection structure back to a flat list of all completed videos
-     * to maintain compatibility with the current Dashboard view.
+     * Subscribe to ALL progress docs for a user
+     * Returns a map: { [courseId]: progressData }
      */
-    subscribeToAllProgress: (userId, callback) => {
+    subscribeToAllUserProgress: (userId, callback) => {
         const progressColl = collection(db, 'users', userId, 'progress');
         return onSnapshot(progressColl, (snapshot) => {
-            let allCompleted = [];
-
+            const progressMap = {};
             snapshot.forEach(doc => {
-                const data = doc.data();
-                if (data.completedLessonIds) {
-                    allCompleted = [...allCompleted, ...data.completedLessonIds];
-                }
+                progressMap[doc.id] = doc.data();
             });
-
-            // Return aggregated format expected by Dashboard
-            callback({ completedVideos: allCompleted });
+            callback(progressMap);
         });
     },
 
     /**
-     * Calculate percentage
+     * Sync total lessons if changed (Utility)
      */
-    calculatePercentage: (completedCount, totalCount) => {
-        if (!totalCount || totalCount === 0) return 0;
-        // Cap at 100% just in case of data anomalies
-        return Math.min(Math.round((completedCount / totalCount) * 100), 100);
+    syncTotalLessons: async (userId, courseId, totalLessons) => {
+        try {
+            const progressRef = doc(db, 'users', userId, 'progress', courseId);
+            const docSnap = await getDoc(progressRef);
+            if (!docSnap.exists()) return;
+
+            const data = docSnap.data();
+            const completedCount = data.completedLessonIds?.length || 0;
+            const percentage = Math.min(Math.round((completedCount / totalLessons) * 100), 100);
+
+            if (data.totalLessons !== totalLessons || data.progressPercentage !== percentage) {
+                await updateDoc(progressRef, {
+                    totalLessons: totalLessons,
+                    progressPercentage: percentage
+                });
+            }
+        } catch (e) {
+            console.error("Sync error", e);
+        }
     }
 };
 
