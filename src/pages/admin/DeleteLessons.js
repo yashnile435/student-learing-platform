@@ -205,7 +205,7 @@ const EditLessons = () => {
             )}
 
             {loading ? (
-                <p>Loading lessons...</p>
+                <p>Loading lessons…</p>
             ) : filteredLessons.length === 0 ? (
                 <div className="card text-center" style={{ padding: '3rem' }}>
                     <p style={{ color: 'var(--text-muted)' }}>No lessons found.</p>
@@ -245,7 +245,7 @@ const EditLessons = () => {
                                         </td>
                                         <td>
                                             <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                                <button
+                                                <button type="button"
                                                     onClick={() => openEditModal(lesson)}
                                                     className="btn btn-icon"
                                                     style={{ background: '#e0e7ff', color: '#4f46e5' }}
@@ -253,7 +253,7 @@ const EditLessons = () => {
                                                 >
                                                     <FaEdit />
                                                 </button>
-                                                <button
+                                                <button type="button"
                                                     onClick={() => confirmDelete(lesson)}
                                                     className="btn btn-icon"
                                                     style={{ background: '#fee2e2', color: '#ef4444' }}

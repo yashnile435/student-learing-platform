@@ -117,7 +117,7 @@ const Dashboard = () => {
         navigate('/dashboard', { state: null });
     };
 
-    if (loading) return <div className="p-4">Loading...</div>;
+    if (loading) return <div className="p-4">Loading…</div>;
 
     // --- VIEW: LESSON LIST (Active Course) ---
     if (activeCourseId) {
@@ -220,6 +220,7 @@ const Dashboard = () => {
                 {/* Header Section */}
                 <div style={{ marginBottom: '2rem' }}>
                     <button
+                        type="button"
                         onClick={handleBackToCourses}
                         className="btn"
                         style={{
@@ -302,7 +303,7 @@ const Dashboard = () => {
                     {/* RIGHT PANEL: PLAYER */}
                     <div className="video-main-area">
                         {currentLesson ? (
-                            <Suspense fallback={<div className="p-8 text-center">Loading Player...</div>}>
+                            <Suspense fallback={<div className="p-8 text-center">Loading Player…</div>}>
                                 <VideoPlayer
                                     video={currentLesson}
                                     courseId={activeCourseId}
@@ -451,6 +452,7 @@ const Dashboard = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b', margin: 0 }}>My Courses</h2>
                 <button
+                    type="button"
                     onClick={() => navigate('/courses')}
                     style={{ background: 'transparent', border: 'none', color: '#6366f1', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
                 >
@@ -463,7 +465,7 @@ const Dashboard = () => {
                     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎓</div>
                     <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.5rem' }}>Start your learning journey</h3>
                     <p style={{ color: '#64748b', marginBottom: '2rem' }}>You assume full control of your future. Start learning today!</p>
-                    <button className="btn btn-primary" onClick={() => navigate('/courses')} style={{ padding: '0.75rem 2rem', borderRadius: '30px' }}>
+                    <button type="button" className="btn btn-primary" onClick={() => navigate('/courses')} style={{ padding: '0.75rem 2rem', borderRadius: '30px' }}>
                         Explore Courses
                     </button>
                 </div>
@@ -501,6 +503,7 @@ const Dashboard = () => {
                                     </div>
                                     <div style={{ marginTop: 'auto' }}>
                                         <button
+                                            type="button"
                                             className="btn btn-continue"
                                             onClick={() => setActiveCourseId(course.id)}
                                             style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}

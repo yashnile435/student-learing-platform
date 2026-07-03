@@ -10,7 +10,7 @@ import { useLocation } from 'react-router-dom';
 
 const EditCourse = () => {
     const { user, userRole } = useAuth();
-    const location = useLocation();
+    const { state } = useLocation();
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [coursesList, setCoursesList] = useState([]);
@@ -135,10 +135,10 @@ const EditCourse = () => {
     }, [resetForm]);
 
     useEffect(() => {
-        if (location.state?.courseId) {
-            handleCourseSelectForEdit(location.state.courseId);
+        if (state?.courseId) {
+            handleCourseSelectForEdit(state.courseId);
         }
-    }, [location.state, handleCourseSelectForEdit]);
+    }, [state, handleCourseSelectForEdit]);
 
     const handleUpdateCourse = async (e) => {
         e.preventDefault();
@@ -222,7 +222,7 @@ const EditCourse = () => {
             <div>
                 <h1 className="mb-4">{userRole === 'teacher' ? 'My Assigned Courses' : 'Manage Courses'}</h1>
 
-                {loading && <p>Loading courses...</p>}
+                {loading && <p>Loading courses…</p>}
 
                 {!loading && coursesList.length === 0 ? (
                     <div className="card text-center" style={{ padding: '3rem' }}>
@@ -279,7 +279,7 @@ const EditCourse = () => {
                                             {course.totalLessons || 0} Lessons
                                         </span>
                                         <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                            <button
+                                            <button type="button"
                                                 onClick={() => handleCourseSelectForEdit(course.id)}
                                                 className="btn btn-primary"
                                                 style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
@@ -287,7 +287,7 @@ const EditCourse = () => {
                                                 <FaEdit /> Edit
                                             </button>
                                             {userRole === 'admin' && (
-                                                <button
+                                                <button type="button"
                                                     onClick={(e) => handleDeleteCourse(course.id, e)}
                                                     className="btn btn-danger"
                                                     style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5' }}

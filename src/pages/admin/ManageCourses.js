@@ -59,7 +59,7 @@ const ManageCourses = () => {
             <h1 className="mb-4">Manage Courses</h1>
             {message && <div style={{ marginBottom: '1rem', padding: '1rem', background: message.includes('Error') ? '#fee2e2' : '#d1fae5', color: message.includes('Error') ? '#991b1b' : '#065f46', borderRadius: 'var(--radius)' }}>{message}</div>}
 
-            {loading && <p>Loading...</p>}
+            {loading && <p>Loading…</p>}
 
             {!loading && coursesList.length === 0 ? <p>No courses found.</p> : (
                 <>
@@ -88,6 +88,7 @@ const ManageCourses = () => {
                                         <td>{course.totalLessons || 0}</td>
                                         <td style={{ display: 'flex', gap: '0.5rem' }}>
                                             <button
+                                                type="button"
                                                 onClick={() => navigate('/admin/edit', { state: { courseId: course.id } })}
                                                 className="btn btn-primary"
                                                 style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', display: 'flex', alignItems: 'center', gap: '5px' }}
@@ -95,6 +96,7 @@ const ManageCourses = () => {
                                                 <FaEdit /> Edit
                                             </button>
                                             <button
+                                                type="button"
                                                 onClick={() => handleDeleteCourse(course.id)}
                                                 className="btn btn-danger"
                                                 style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', display: 'flex', alignItems: 'center', gap: '5px' }}
@@ -127,6 +129,7 @@ const ManageCourses = () => {
 
                                     <div style={{ display: 'flex', gap: '0.75rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
                                         <button
+                                            type="button"
                                             onClick={() => navigate('/admin/edit', { state: { courseId: course.id } })}
                                             className="btn btn-primary"
                                             style={{ flex: 1, justifyContent: 'center', display: 'flex', alignItems: 'center', gap: '5px' }}
@@ -134,6 +137,7 @@ const ManageCourses = () => {
                                             <FaEdit /> Edit
                                         </button>
                                         <button
+                                            type="button"
                                             onClick={() => handleDeleteCourse(course.id)}
                                             className="btn btn-danger"
                                             style={{ flex: 1, justifyContent: 'center', display: 'flex', alignItems: 'center', gap: '5px' }}

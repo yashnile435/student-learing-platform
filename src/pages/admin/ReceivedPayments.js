@@ -107,84 +107,10 @@ const ReceivedPayments = () => {
         );
     };
 
-    const PaymentActions = ({ payment }) => (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>
-            {payment.status === 'submitted' && (
-                <>
-                    <button
-                        className="btn"
-                        onClick={() => handleVerify(payment)}
-                        disabled={processingId === payment.id}
-                        style={{
-                            backgroundColor: '#f59e0b',
-                            borderColor: '#f59e0b',
-                            color: '#fff',
-                            width: '100%',
-                            fontSize: '0.85rem',
-                            padding: '0.4rem',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px'
-                        }}
-                    >
-                        <FaShieldAlt /> Verify Payment
-                    </button>
-                    <button
-                        className="btn"
-                        onClick={() => handleReject(payment)}
-                        disabled={processingId === payment.id}
-                        style={{
-                            background: 'none', color: '#dc2626', border: '1px solid #dc2626',
-                            width: '100%', fontSize: '0.85rem', padding: '0.3rem'
-                        }}
-                    >
-                        Reject
-                    </button>
-                </>
-            )}
 
-            {payment.status === 'verified' && (
-                <>
-                    <button
-                        className="btn btn-primary"
-                        onClick={() => handleGrantAccess(payment)}
-                        disabled={processingId === payment.id}
-                        style={{
-                            backgroundColor: '#10b981', borderColor: '#10b981',
-                            width: '100%', fontSize: '0.85rem', padding: '0.4rem',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px'
-                        }}
-                    >
-                        <FaKey /> Grant Access
-                    </button>
-                    <button
-                        className="btn"
-                        onClick={() => handleReject(payment)}
-                        disabled={processingId === payment.id}
-                        style={{
-                            background: 'none', color: '#dc2626', border: '1px solid #dc2626',
-                            width: '100%', fontSize: '0.85rem', padding: '0.3rem'
-                        }}
-                    >
-                        Reject
-                    </button>
-                </>
-            )}
-
-            {(payment.status === 'access_granted' || payment.status === 'approved') && (
-                <span style={{ color: '#10b981', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <FaCheck /> Access Granted
-                </span>
-            )}
-
-            {payment.status === 'rejected' && (
-                <span style={{ color: '#dc2626', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <FaTimes /> Rejected
-                </span>
-            )}
-        </div>
-    );
 
     if (loading) {
-        return <div className="p-4">Loading payments...</div>;
+        return <div className="p-4">Loading payments…</div>;
     }
 
     return (
@@ -230,7 +156,13 @@ const ReceivedPayments = () => {
                                             {getStatusBadge(payment.status)}
                                         </td>
                                         <td style={{ padding: '1rem', textAlign: 'center', minWidth: '200px' }}>
-                                            <PaymentActions payment={payment} />
+                                            <PaymentActions
+                                                payment={payment}
+                                                processingId={processingId}
+                                                handleVerify={handleVerify}
+                                                handleReject={handleReject}
+                                                handleGrantAccess={handleGrantAccess}
+                                            />
                                         </td>
                                     </tr>
                                 ))}
@@ -267,7 +199,13 @@ const ReceivedPayments = () => {
                                     </div>
 
                                     <div style={{ borderTop: '1px solid #eee', paddingTop: '1rem' }}>
-                                        <PaymentActions payment={payment} />
+                                        <PaymentActions
+                                            payment={payment}
+                                            processingId={processingId}
+                                            handleVerify={handleVerify}
+                                            handleReject={handleReject}
+                                            handleGrantAccess={handleGrantAccess}
+                                        />
                                     </div>
                                 </div>
                             ))}
@@ -292,6 +230,7 @@ const ReceivedPayments = () => {
                             style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: '8px', boxShadow: '0 10px 40px rgba(0,0,0,0.3)' }}
                         />
                         <button
+                            type="button"
                             onClick={() => setViewScreenshot(null)}
                             style={{
                                 position: 'absolute', top: -40, right: 0, background: 'white', border: 'none', color: '#333',
@@ -307,5 +246,85 @@ const ReceivedPayments = () => {
         </div>
     );
 };
+
+const PaymentActions = ({ payment, processingId, handleVerify, handleReject, handleGrantAccess }) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>
+        {payment.status === 'submitted' && (
+            <>
+                <button
+                    type="button"
+                    className="btn"
+                    onClick={() => handleVerify(payment)}
+                    disabled={processingId === payment.id}
+                    style={{
+                        backgroundColor: '#f59e0b',
+                        borderColor: '#f59e0b',
+                        color: '#fff',
+                        width: '100%',
+                        fontSize: '0.85rem',
+                        padding: '0.4rem',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px'
+                    }}
+                >
+                    <FaShieldAlt /> Verify Payment
+                </button>
+                <button
+                    type="button"
+                    className="btn"
+                    onClick={() => handleReject(payment)}
+                    disabled={processingId === payment.id}
+                    style={{
+                        background: 'none', color: '#dc2626', border: '1px solid #dc2626',
+                        width: '100%', fontSize: '0.85rem', padding: '0.3rem'
+                    }}
+                >
+                    Reject
+                </button>
+            </>
+        )}
+
+        {payment.status === 'verified' && (
+            <>
+                <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => handleGrantAccess(payment)}
+                    disabled={processingId === payment.id}
+                    style={{
+                        backgroundColor: '#10b981', borderColor: '#10b981',
+                        width: '100%', fontSize: '0.85rem', padding: '0.4rem',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px'
+                    }}
+                >
+                    <FaKey /> Grant Access
+                </button>
+                <button
+                    type="button"
+                    className="btn"
+                    onClick={() => handleReject(payment)}
+                    disabled={processingId === payment.id}
+                    style={{
+                        background: 'none', color: '#dc2626', border: '1px solid #dc2626',
+                        width: '100%', fontSize: '0.85rem', padding: '0.3rem'
+                    }}
+                >
+                    Reject
+                </button>
+            </>
+        )}
+
+        {(payment.status === 'access_granted' || payment.status === 'approved') && (
+            <span style={{ color: '#10b981', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <FaCheck /> Access Granted
+            </span>
+        )}
+
+        {payment.status === 'rejected' && (
+            <span style={{ color: '#dc2626', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <FaTimes /> Rejected
+            </span>
+        )}
+    </div>
+);
 
 export default ReceivedPayments;

@@ -205,14 +205,14 @@ const ManageTeachers = () => {
                             </div>
 
                             <div style={{ display: 'flex', gap: '0.75rem', marginTop: 'auto', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
-                                <button
+                                <button type="button"
                                     className="btn btn-secondary w-full"
                                     onClick={() => handleEditClick(teacher)}
                                     style={{ flex: 1, justifyContent: 'center' }}
                                 >
                                     <FaEdit style={{ marginRight: '0.5rem' }} /> Edit
                                 </button>
-                                <button
+                                <button type="button"
                                     className="btn btn-secondary w-full"
                                     onClick={() => handleDeleteClick(teacher.id)}
                                     style={{ flex: 1, justifyContent: 'center', color: 'var(--danger-color)', borderColor: '#fee2e2', background: '#fff' }}
@@ -236,7 +236,7 @@ const ManageTeachers = () => {
                     <div className="card" style={{ width: '100%', maxWidth: '400px', animation: 'slideIn 0.2s ease-out' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                             <h2 style={{ fontSize: '1.25rem', margin: 0 }}>Edit Teacher</h2>
-                            <button onClick={() => setEditingTeacher(null)} style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                            <button type="button" onClick={() => setEditingTeacher(null)} style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer', color: 'var(--text-muted)' }}>
                                 <FaTimes />
                             </button>
                         </div>
@@ -296,8 +296,8 @@ const ManageTeachers = () => {
                         </p>
 
                         <div style={{ display: 'flex', gap: '1rem' }}>
-                            <button className="btn btn-secondary w-full" onClick={() => setDeleteId(null)}>Cancel</button>
-                            <button className="btn btn-danger w-full" onClick={confirmDelete} disabled={isDeleting}>
+                            <button type="button" className="btn btn-secondary w-full" onClick={() => setDeleteId(null)}>Cancel</button>
+                            <button type="button" className="btn btn-danger w-full" onClick={confirmDelete} disabled={isDeleting}>
                                 {isDeleting ? 'Removing...' : 'Yes, Remove'}
                             </button>
                         </div>

@@ -65,7 +65,7 @@ const PublicLayout = () => {
                 </div>
 
                 {/* Mobile Menu Toggle */}
-                <button
+                <button type="button"
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                     style={{
                         display: 'none',
@@ -100,7 +100,7 @@ const PublicLayout = () => {
                             <div style={{ fontWeight: 800, fontSize: '1.5rem', color: 'var(--primary-color)' }} onClick={() => setMobileMenuOpen(false)}>
                                 <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>YaTi Learning</Link>
                             </div>
-                            <button
+                            <button type="button"
                                 onClick={() => setMobileMenuOpen(false)}
                                 style={{
                                     background: 'transparent',

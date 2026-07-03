@@ -71,7 +71,7 @@ const DashboardLayout = () => {
             <aside className={`sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
                 <div className="sidebar-header">
                     <h3>YaTi Learning</h3>
-                    <button
+                    <button type="button"
                         className="sidebar-close-btn hide-desktop"
                         onClick={closeMobileMenu}
                         aria-label="Close menu"
@@ -98,11 +98,11 @@ const DashboardLayout = () => {
 
                     {/* Bottom Links */}
                     <div className="nav-item-bottom">
-                        <button onClick={handleContact} className="nav-item" style={{ width: '100%', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                        <button type="button" onClick={handleContact} className="nav-item" style={{ width: '100%', background: 'transparent', border: 'none', cursor: 'pointer' }}>
                             <FaEnvelope />
                             <span>Contact</span>
                         </button>
-                        <button onClick={handleLogout} className="nav-item" style={{ width: '100%', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                        <button type="button" onClick={handleLogout} className="nav-item" style={{ width: '100%', background: 'transparent', border: 'none', cursor: 'pointer' }}>
                             <FaSignOutAlt />
                             <span>Logout</span>
                         </button>
@@ -114,7 +114,7 @@ const DashboardLayout = () => {
             <div className="main-content">
                 <header className="top-header">
                     {/* Mobile Menu Toggle Button (Inside Header) */}
-                    <button
+                    <button type="button"
                         className="mobile-menu-toggle"
                         onClick={() => setMobileMenuOpen(true)}
                         aria-label="Open menu"

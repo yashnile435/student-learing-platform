@@ -93,7 +93,7 @@ const AdminDashboard = () => {
 
 
 
-    if (loading) return <div><p>Loading dashboard...</p></div>;
+    if (loading) return <div><p>Loading dashboard…</p></div>;
 
     // Teacher View
     if (userRole === 'teacher') {
@@ -253,7 +253,7 @@ const AdminDashboard = () => {
                 }} onClick={() => setViewScreenshot(null)}>
                     <div style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }}>
                         <img src={viewScreenshot} alt="Payment Screenshot" style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: '4px' }} />
-                        <button onClick={() => setViewScreenshot(null)} style={{
+                        <button type="button" onClick={() => setViewScreenshot(null)} style={{
                             position: 'absolute', top: -40, right: 0, background: 'none', border: 'none', color: 'white', fontSize: '2rem', cursor: 'pointer'
                         }}>
                             <FaTimes />

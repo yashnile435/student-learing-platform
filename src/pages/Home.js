@@ -61,7 +61,7 @@ const Home = () => {
                         The ultimate platform for modern education. Access world-class courses, expert mentors, and hands-on projects to launch your career.
                     </p>
                     <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                        <button
+                        <button type="button"
                             className="btn btn-primary"
                             style={{
                                 padding: '1rem 2.5rem',
@@ -73,7 +73,7 @@ const Home = () => {
                         >
                             Explore Courses
                         </button>
-                        <button
+                        <button type="button"
                             className="btn btn-secondary"
                             style={{
                                 padding: '1rem 2.5rem',
@@ -181,7 +181,7 @@ const Home = () => {
                         <p style={{ marginBottom: '2rem', fontSize: '1.1rem' }}>
                             Browse our catalog of premium and free courses covering everything from Web Development to AI.
                         </p>
-                        <button
+                        <button type="button"
                             className="btn btn-primary"
                             style={{ padding: '1rem 2rem', borderRadius: '50px' }}
                             onClick={() => navigate('/courses')}

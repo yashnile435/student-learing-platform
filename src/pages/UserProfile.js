@@ -208,7 +208,7 @@ const UserProfile = () => {
         }
     };
 
-    if (loading) return <div className="p-4">Loading Profile...</div>;
+    if (loading) return <div className="p-4">Loading Profile…</div>;
 
     // --- STUDENT SPECIFIC LAYOUT ---
     if (profileData.role === 'student') {
@@ -355,15 +355,15 @@ const UserProfile = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
                         {isEditing ? (
                             <div style={{ display: 'flex', gap: '1rem' }}>
-                                <button className="btn btn-secondary" style={{ flex: 1, padding: '0.875rem' }} onClick={() => setIsEditing(false)}>
+                                <button type="button" className="btn btn-secondary" style={{ flex: 1, padding: '0.875rem' }} onClick={() => setIsEditing(false)}>
                                     Cancel
                                 </button>
-                                <button className="btn btn-primary" style={{ flex: 1, padding: '0.875rem' }} onClick={handleSave} disabled={saving}>
+                                <button type="button" className="btn btn-primary" style={{ flex: 1, padding: '0.875rem' }} onClick={handleSave} disabled={saving}>
                                     {saving ? 'Saving...' : 'Save Changes'}
                                 </button>
                             </div>
                         ) : (
-                            <button
+                            <button type="button"
                                 className="btn btn-secondary w-full"
                                 style={{ padding: '1rem', justifyContent: 'center', fontWeight: 600 }}
                                 onClick={() => setIsEditing(true)}
@@ -375,7 +375,7 @@ const UserProfile = () => {
                         {!isEditing && (
                             <>
                                 {user.providerData[0]?.providerId === 'password' ? (
-                                    <button
+                                    <button type="button"
                                         className="btn w-full btn-secondary"
                                         style={{ padding: '1rem', justifyContent: 'center', fontWeight: 600 }}
                                         onClick={() => setChangePasswordModalOpen(true)}
@@ -388,7 +388,7 @@ const UserProfile = () => {
                                     </div>
                                 )}
 
-                                <button
+                                <button type="button"
                                     className="btn w-full"
                                     style={{
                                         padding: '1rem',
@@ -423,7 +423,7 @@ const UserProfile = () => {
                         padding: '1rem'
                     }}>
                         <div className="card" style={{ width: '100%', maxWidth: '400px', position: 'relative', maxHeight: '90vh', overflowY: 'auto' }}>
-                            <button
+                            <button type="button"
                                 onClick={() => setChangePasswordModalOpen(false)}
                                 style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', fontSize: '1.25rem', cursor: 'pointer', color: 'var(--text-muted)' }}
                             >
@@ -492,7 +492,7 @@ const UserProfile = () => {
                 <div className="card">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                         <h2 style={{ fontSize: '1.25rem', margin: 0 }}>Personal Details</h2>
-                        <button
+                        <button type="button"
                             className="btn"
                             style={{ background: isEditing ? 'var(--warning-color)' : 'var(--bg-body)', color: isEditing ? 'white' : 'var(--text-main)' }}
                             onClick={() => isEditing ? setIsEditing(false) : setIsEditing(true)}
@@ -569,7 +569,7 @@ const UserProfile = () => {
                         )}
 
                         {isEditing && (
-                            <button className="btn btn-primary w-full" onClick={handleSave} disabled={saving}>
+                            <button type="button" className="btn btn-primary w-full" onClick={handleSave} disabled={saving}>
                                 {saving ? 'Saving...' : <><FaSave style={{ marginRight: '0.5rem' }} /> Save Changes</>}
                             </button>
                         )}

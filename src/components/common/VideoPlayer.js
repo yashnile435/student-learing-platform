@@ -110,7 +110,7 @@ const VideoPlayer = ({ video, courseId = 'general', onClose, totalLessons = 0 })
     return (
         <div className="video-modal-overlay" onClick={onClose}>
             <div className="video-modal-content" onClick={e => e.stopPropagation()}>
-                <button className="close-btn" onClick={onClose}>
+                <button type="button" className="close-btn" onClick={onClose}>
                     <FaTimes />
                 </button>
 

@@ -136,13 +136,13 @@ const Reports = () => {
         doc.save("yati_comprehensive_report.pdf");
     };
 
-    if (loading) return <div className="p-4">Loading Comprehensive Report...</div>;
+    if (loading) return <div className="p-4">Loading Comprehensive Report…</div>;
 
     return (
         <div style={{ paddingBottom: '2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                 <h1 style={{ margin: 0 }}>Platform Overview</h1>
-                <button onClick={generatePDF} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <button type="button" onClick={generatePDF} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     Generate PDF
                 </button>
             </div>

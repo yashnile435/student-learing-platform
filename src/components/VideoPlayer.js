@@ -45,7 +45,7 @@ const VideoPlayer = ({ video, courseId = 'general', onClose }) => {
     return (
         <div className="video-modal-overlay" onClick={onClose}>
             <div className="video-modal-content" onClick={e => e.stopPropagation()}>
-                <button className="close-btn" onClick={onClose}>
+                <button type="button" className="close-btn" onClick={onClose}>
                     <FaTimes />
                 </button>
 
@@ -63,7 +63,7 @@ const VideoPlayer = ({ video, courseId = 'general', onClose }) => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                         <h2>{video.title}</h2>
                         {user && userRole !== 'student' && (
-                            <button
+                            <button type="button"
                                 className={`btn ${isCompleted ? 'btn-success' : 'btn-secondary'}`}
                                 onClick={handleComplete}
                                 disabled={markingComplete || isCompleted}

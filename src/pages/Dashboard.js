@@ -96,13 +96,13 @@ const Dashboard = () => {
         navigate('/dashboard', { state: null });
     };
 
-    if (loading) return <div className="p-4">Loading...</div>;
+    if (loading) return <div className="p-4">Loading…</div>;
 
     // View: Active Course (Player Mode)
     if (activeCourseId) {
         return (
             <div>
-                <button
+                <button type="button"
                     onClick={handleBackToCourses}
                     className="btn btn-secondary mb-4"
                     style={{ gap: '0.5rem', border: 'none', paddingLeft: 0, justifyContent: 'flex-start' }}
@@ -152,7 +152,7 @@ const Dashboard = () => {
                 </div>
 
                 {selectedVideo && (
-                    <Suspense fallback={<div>Loading Player...</div>}>
+                    <Suspense fallback={<div>Loading Player…</div>}>
                         <VideoPlayer
                             video={selectedVideo}
                             courseId={activeCourseId}
@@ -173,7 +173,7 @@ const Dashboard = () => {
                 <div className="card text-center" style={{ padding: '3rem' }}>
                     <h3 style={{ marginBottom: '1rem' }}>Start your journey today!</h3>
                     <p>You are not enrolled in any courses yet.</p>
-                    <button className="btn btn-primary mt-4" onClick={() => navigate('/courses')}>
+                    <button type="button" className="btn btn-primary mt-4" onClick={() => navigate('/courses')}>
                         Explore Courses
                     </button>
                 </div>
@@ -192,7 +192,7 @@ const Dashboard = () => {
                             <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', height: 'calc(100% - 180px)' }}>
                                 <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{course.title}</h3>
                                 <p style={{ fontSize: '0.9rem', marginBottom: '1.5rem', flex: 1 }}>{course.description ? course.description.substring(0, 80) + '...' : ''}</p>
-                                <button
+                                <button type="button"
                                     className="btn btn-primary w-full"
                                     onClick={() => setActiveCourseId(course.id)}
                                 >
@@ -208,7 +208,7 @@ const Dashboard = () => {
             <div style={{ marginTop: '4rem' }}>
                 <h2 className="mb-3">Payment History</h2>
                 {paymentLoading ? (
-                    <div className="card p-3 text-center text-muted">Loading payments...</div>
+                    <div className="card p-3 text-center text-muted">Loading payments…</div>
                 ) : paymentHistory.length === 0 ? (
                     <div className="card p-3 text-center text-muted">
                         No payments found.

@@ -144,14 +144,14 @@ const Courses = () => {
     }, [loading, user, courses]);
 
     if (loading) {
-        return <div className="p-4 text-center">Loading Courses...</div>;
+        return <div className="p-4 text-center">Loading Courses…</div>;
     }
 
     if (error) {
         return (
             <div className="container" style={{ padding: '3rem 1rem', textAlign: 'center' }}>
                 <h3 style={{ color: 'var(--danger-color)' }}>{error}</h3>
-                <button className="btn btn-primary mt-4" onClick={() => window.location.reload()}>Retry</button>
+                <button type="button" className="btn btn-primary mt-4" onClick={() => window.location.reload()}>Retry</button>
             </div>
         );
     }
@@ -184,7 +184,7 @@ const Courses = () => {
                                 {course.description?.substring(0, 100)}...
                             </p>
 
-                            <button
+                            <button type="button"
                                 className="btn btn-primary w-full mt-4"
                                 onClick={() => handleCourseClick(course)}
                                 disabled={enrollingId === course.id}
@@ -209,7 +209,7 @@ const Courses = () => {
                     background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
                 }}>
                     <div className="card" style={{ width: '90%', maxWidth: '500px', position: 'relative', maxHeight: '90vh', overflowY: 'auto' }}>
-                        <button
+                        <button type="button"
                             onClick={closePaymentModal}
                             style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#666' }}
                         >
@@ -265,7 +265,7 @@ const Courses = () => {
 
 
                                 {/* Submit Button */}
-                                <button
+                                <button type="button"
                                     onClick={handlePaymentSubmit}
                                     className="btn btn-primary full-width"
                                     disabled={!utrNumber.trim()}
@@ -285,7 +285,7 @@ const Courses = () => {
                         {paymentStatus === 'processing' && (
                             <div style={{ textAlign: 'center', padding: '2rem 0' }}>
                                 <div className="spinner" style={{ margin: '0 auto 1rem' }}></div>
-                                <p>Submitting payment...</p>
+                                <p>Submitting payment…</p>
                             </div>
                         )}
 
@@ -296,7 +296,7 @@ const Courses = () => {
                                 <p style={{ margin: '1rem 0', color: '#666' }}>
                                     Payment submitted successfully. Your access will be granted after admin verification.
                                 </p>
-                                <button onClick={closePaymentModal} className="btn btn-secondary full-width">
+                                <button type="button" onClick={closePaymentModal} className="btn btn-secondary full-width">
                                     Close
                                 </button>
                             </div>
@@ -307,7 +307,7 @@ const Courses = () => {
                                 <div style={{ fontSize: '3rem', color: '#dc3545', marginBottom: '1rem' }}>✕</div>
                                 <h3>Submission Failed</h3>
                                 <p>{paymentError}</p>
-                                <button onClick={() => setPaymentStatus('initial')} className="btn btn-secondary full-width mt-3">
+                                <button type="button" onClick={() => setPaymentStatus('initial')} className="btn btn-secondary full-width mt-3">
                                     Try Again
                                 </button>
                             </div>
